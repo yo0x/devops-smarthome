@@ -18,9 +18,8 @@ pipeline {
     stage('Build docker') {
       steps {
         container('docker-builder') {
-          git 'https://github.com/yo0x/devops-smarthome.git'
-          sh ' echo Hello World > hello.txt'
-          sh 'ls -last'
+          checkout scm
+          echo "ls -ll"
         }
       }
     }
