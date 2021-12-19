@@ -1,0 +1,28 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: docker builder
+            image: docker:latest
+            command:
+            - cat
+            tty: true
+        '''
+    }
+  }
+  stages {
+    stage('Build docker') {
+      steps {
+        container('docker builder') {
+          git 'https://github.com/yo0x/devops-smarthome.git'
+          sh ' echo Hello World > hello.txt'
+          sh 'ls -last'
+        }
+      }
+    }
+  }
+}
