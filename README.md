@@ -5,7 +5,9 @@ Have fun.
 ## Technologies used
 [X] Development in VsCode 4 containers
 [X] K8s
-[X] Jenkins
-[X] Ansible
+[X] Jenkins running inside k8s
+[X] Jenkins slaves on K8ss
+[X] Ansible (Will execute tasks in clients)
 [X] Google actions - Not DevOps (yet?) but nice touch.
+
 
