@@ -20,7 +20,7 @@ pipeline {
         container('docker-builder') {
           checkout scm
           sh 'ls -ls'
-          sh 'sudo apt install python3.8'
+          sh 'apt install python3.8'
         }
       }
     }
