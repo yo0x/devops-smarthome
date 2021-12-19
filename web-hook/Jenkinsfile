@@ -6,7 +6,7 @@ pipeline {
         kind: Pod
         spec:
           containers:
-          - name: docker builder
+          - name: docker-builder
             image: docker:latest
             command:
             - cat
@@ -17,7 +17,7 @@ pipeline {
   stages {
     stage('Build docker') {
       steps {
-        container('docker builder') {
+        container('docker-builder') {
           git 'https://github.com/yo0x/devops-smarthome.git'
           sh ' echo Hello World > hello.txt'
           sh 'ls -last'
