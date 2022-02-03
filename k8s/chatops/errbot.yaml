@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: errbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: errbot
+  template:
+    metadata:
+      labels:
+        app: errbot
+    spec:
+      containers:
+      - name: errbot
+        image: errbotio/errbot:latest
+        volumeMounts:
+          - name: errbot-vol
+            mountPath: /home/app
+      volumes:
+        - name: errbot-vol
+          persistentVolumeClaim:
+            claimName: sources-volume-claim
+---
+metadata:
+  name: errbot
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30000
+  selector:
+    app: errbot
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: errbot-srv
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50000
+      targetPort: 50000
+  selector:
+    app: errbot
