@@ -47,8 +47,8 @@ spec:
       containers:
       - name: errbot
         image: errbotio/errbot:latest
-        # command: ["sudo chmod"]
-        # args: ["777", "/home/errbot/config.py"]
+        command: ["pip"]
+        args: ["install", "errbot[slack]"]
         volumeMounts:
           - name: errbot-vol
             mountPath: /home/errbot
