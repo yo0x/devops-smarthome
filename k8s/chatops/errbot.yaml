@@ -1,3 +1,35 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: default-sources-volume
+spec:
+  capacity:
+    storage: 15Gi
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  nfs:
+    # The address 192.168.99.1 is the Minikube gateway to the host. This way
+    # not the container IP will be visible by the NFS server on the host machine,
+    # but the IP address of the `minikube ip` command. You will need to
+    # grant access to the `minikube ip` IP address.
+    server: 192.168.49.1
+    path: '/mnt/errbot-data'
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sources-volume-claim-errbot
+  namespace: default
+spec:
+  storageClassName: standard
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 15Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,11 +49,11 @@ spec:
         image: errbotio/errbot:latest
         volumeMounts:
           - name: errbot-vol
-            mountPath: /home/app
+            mountPath: /home/errbot
       volumes:
         - name: errbot-vol
           persistentVolumeClaim:
-            claimName: sources-volume-claim
+            claimName: sources-volume-claim-errbot
 ---
 metadata:
   name: errbot
