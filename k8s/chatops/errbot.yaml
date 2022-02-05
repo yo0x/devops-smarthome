@@ -48,6 +48,8 @@ spec:
       - name: errbot
         image: errbotio/errbot:latest
         command: ["pip"]
+        args: ["install", "--upgrade pip"]
+        command: ["pip"]
         args: ["install", "errbot[slack]"]
         volumeMounts:
           - name: errbot-vol
