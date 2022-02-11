@@ -47,10 +47,6 @@ spec:
       containers:
       - name: errbot
         image: errbotio/errbot:latest
-        command: ["pip"]
-        args: ["install", "--upgrade pip"]
-        command: ["pip"]
-        args: ["install", "errbot[slack]"]
         volumeMounts:
           - name: errbot-vol
             mountPath: /home/errbot
@@ -59,13 +55,15 @@ spec:
           persistentVolumeClaim:
             claimName: sources-volume-claim-errbot
 ---
+apiVersion: v1
+kind: service
 metadata:
   name: errbot
 spec:
   type: NodePort
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 3141 
+      targetPort: 3142
       nodePort: 30000
   selector:
     app: errbot
