@@ -23,6 +23,8 @@ spec:
           value: "false"
         - name: readinessProbe.enabled
           value: "false"
+        - name: nodeSelector.type
+          value: raspberrypi
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
