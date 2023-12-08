@@ -21,20 +21,3 @@ spec:
       - name: video0
         hostPath:
           path: /new/path/to/video0
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: octoprint-c-lan-ender
-spec:
-  rules:
-  - host: raspberrypi
-    http:
-      paths:
-      - path: /ender
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: octoprint-svc
-            port:
-              number: 8080
