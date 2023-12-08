@@ -15,9 +15,9 @@ spec:
     app.kubernetes.io/instance: octoprint
     app.kubernetes.io/component: octoprint
     app.kubernetes.io/part-of: octoprint
-  ports:
-    - protocol: TCP
-      name: http
-      port: 80
-      targetPort: 80
+  ports: []
+    # - protocol: TCP
+    #   name: http
+    #   port: 80
+    #   targetPort: 80
   type: ClusterIP
