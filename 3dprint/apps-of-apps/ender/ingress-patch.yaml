@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: octoprint-c-lan-ender
+  name: octoprint-c-lan
 spec:
   rules:
   - host: raspberrypi
