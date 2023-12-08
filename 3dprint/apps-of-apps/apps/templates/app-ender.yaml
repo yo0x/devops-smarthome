@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: octoprint-app
+  name: octoprint-app-ender
   namespace: argocd
 spec:
   destination:
