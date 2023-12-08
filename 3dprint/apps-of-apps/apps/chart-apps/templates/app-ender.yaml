@@ -11,13 +11,13 @@ spec:
   source:
     chart: octoprint
     helm:
-      version: "0.1.1" # replace with your desired chart version
+      version: "6.4.2" # replace with your desired chart version
       values: |
         image:
           repository: octoprint/octoprint
           tag: latest
-    repoURL: https://halkeye.github.io/helm-charts
-    targetRevision: "0.1.1" 
+    repoURL: https://geek-cookbook.github.io/charts/
+    targetRevision: "6.4.2" 
   syncPolicy:
     automated:
       prune: true
