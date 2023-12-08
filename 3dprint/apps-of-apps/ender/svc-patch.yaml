@@ -3,7 +3,7 @@ kind: Service
 metadata:
 # Can't use octoprint here because it sets OCTOPRINT_PORT to the ip/port of the service inside of the container
 # That environment variable is a config environment variable that tells octoprint what port to start on.
-  name: octoprint-svc-ender
+  name: octoprint-svc
 spec:
   ports:
     - protocol: TCP
