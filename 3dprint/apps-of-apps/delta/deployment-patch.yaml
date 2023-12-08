@@ -12,9 +12,9 @@ spec:
           - mountPath: /dev/ttyUSB0
             name: ttyusb0
             readOnly: false
-          - mountPath: /dev/video0
-            name: video0
-            readOnly: false
+          # - mountPath: /dev/video0
+          #   name: video0
+          #   readOnly: false
       volumes:
       - name: ttyusb0
         hostPath:

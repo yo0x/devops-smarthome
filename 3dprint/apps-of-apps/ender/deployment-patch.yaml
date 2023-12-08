@@ -11,9 +11,9 @@ spec:
           - mountPath: /dev/ttyACM0
             name: ttyacm0
             readOnly: false
-          - mountPath: /dev/video0
-            name: video0
-            readOnly: false
+          # - mountPath: /dev/video0
+          #   name: video0
+          #   readOnly: false
       volumes:
       - name: ttyacm0
         hostPath:
