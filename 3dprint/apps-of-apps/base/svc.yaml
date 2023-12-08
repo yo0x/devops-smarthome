@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+# Can't use octoprint here because it sets OCTOPRINT_PORT to the ip/port of the service inside of the container
+# That environment variable is a config environment variable that tells octoprint what port to start on.
+  name: octoprint-svc
+  labels:
+    app.kubernetes.io/name: octoprint
+    app.kubernetes.io/instance: octoprint
+    app.kubernetes.io/component: octoprint
+    app.kubernetes.io/part-of: octoprint
+spec:
+  selector:
+    app.kubernetes.io/name: octoprint
+    app.kubernetes.io/instance: octoprint
+    app.kubernetes.io/component: octoprint
+    app.kubernetes.io/part-of: octoprint
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octoprint
+spec:
+  template:
+    spec:
+      containers:
+      - name: octoprint
+        volumeMounts:
+          - mountPath: /dev/ttyUSB0
+            name: ttyUSB0
+            readOnly: false
+          - mountPath: /dev/video0
+            name: video0
+            readOnly: false
+      volumes:
+      - name: ttyUSB0
+        hostPath:
+          path: /dev/ttyUSB0
+      - name: video0
+        hostPath:
+          path: /new/path/to/video0
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octoprint-c-lan
+spec:
+  rules:
+  - host: raspberrypi
+    http:
+      paths:
+      - path: /delta
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: octoprint-svc
+            port:
+              number: 80

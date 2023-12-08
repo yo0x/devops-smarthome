@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octoprint-c-lan
+  annotations:
+    nginx.org/redirect-to-https: "False"
+    ingress.kubernetes.io/ssl-redirect: "False"
+    nginx.ingress.kubernetes.io/ssl-redirect: "False"
+    nginx.ingress.kubernetes.io/proxy-body-size: 800m
+  labels:
+    app.kubernetes.io/name: octoprint
+    app.kubernetes.io/instance: octoprint
+    app.kubernetes.io/component: octoprint
+    app.kubernetes.io/part-of: octoprint
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - raspberrypi
+  rules:
+  - host: raspberrypi
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: octoprint-svc
+            port:
+              number: 80
