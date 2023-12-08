@@ -19,6 +19,6 @@ spec:
       - name: ttyusb0
         hostPath:
           path: /dev/ttyUSB0
-      - name: video0
-        hostPath:
-          path: /new/path/to/video0
+      # - name: video0
+      #   hostPath:
+      #     path: /new/path/to/video0

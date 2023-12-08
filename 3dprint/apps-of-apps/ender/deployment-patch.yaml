@@ -18,6 +18,6 @@ spec:
       - name: ttyacm0
         hostPath:
           path: /new/path/to/ttyACM0
-      - name: video0
-        hostPath:
-          path: /new/path/to/video0
+      # - name: video0
+      #   hostPath:
+      #     path: /new/path/to/video0
