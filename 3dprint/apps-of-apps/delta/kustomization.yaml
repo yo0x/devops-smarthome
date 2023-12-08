@@ -4,4 +4,4 @@ resources:
 - ../base
 patches:
 - path: ingress-patch.yaml
-- path: devployment-patch.yaml
+- path: deployment-patch.yaml
