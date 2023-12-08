@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+# Can't use octoprint here because it sets OCTOPRINT_PORT to the ip/port of the service inside of the container
+# That environment variable is a config environment variable that tells octoprint what port to start on.
+  name: octoprint-svc-delta
+spec:
+  ports:
+    - protocol: TCP
+      name: http
+      port: 8080
+      targetPort: 80
+  type: ClusterIP
