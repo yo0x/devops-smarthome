@@ -9,15 +9,10 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    chart: octoprint
-    helm:
-      version: "6.4.2" # replace with your desired chart version
-      values: |
-        image:
-          repository: octoprint/octoprint
-          tag: latest
+    chart: my-octoprint
     repoURL: https://geek-cookbook.github.io/charts/
-    targetRevision: "6.4.2" 
+    targetRevision: 6.4.2
+    
   syncPolicy:
     automated:
       prune: true
