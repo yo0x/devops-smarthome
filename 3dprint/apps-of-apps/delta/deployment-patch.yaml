@@ -9,13 +9,13 @@ spec:
       - name: octoprint
         volumeMounts:
           - mountPath: /dev/ttyUSB0
-            name: ttyUSB0
+            name: ttyusb0
             readOnly: false
           - mountPath: /dev/video0
             name: video0
             readOnly: false
       volumes:
-      - name: ttyUSB0
+      - name: ttyusb0
         hostPath:
           path: /dev/ttyUSB0
       - name: video0
