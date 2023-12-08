@@ -17,7 +17,7 @@ spec:
           repository: octoprint/octoprint
           tag: latest
     repoURL: https://halkeye.github.io/helm-charts
-    targetRevision: "1.0" 
+    targetRevision: "0.1.1" 
   syncPolicy:
     automated:
       prune: true
