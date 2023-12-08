@@ -25,6 +25,12 @@ spec:
           value: "false"
         - name: nodeSelector.dedicated
           value: 3dprinter
+        - name: tolerations
+          value: |
+            - key: "dedicated"
+              operator: "Equal"
+              value: "3dprinter"
+              effect: "NoSchedule"
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
