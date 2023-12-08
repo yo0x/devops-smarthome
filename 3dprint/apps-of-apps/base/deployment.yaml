@@ -33,11 +33,11 @@ spec:
           privileged: true
         resources:
           requests:
-            memory: 2000Mi
-            cpu: 1000m
+            memory: 200Mi
+            cpu: 100m
           limits:
-            memory: 3500Mi
-            cpu: 2000m
+            memory: 350Mi
+            cpu: 200m
         volumeMounts: []
       volumes:
       - name: octoprint
