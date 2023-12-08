@@ -11,6 +11,6 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: 3dprint/apps-of-apps/kustomize-apps
+    path: 3dprint/apps-of-apps/chart-apps
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD

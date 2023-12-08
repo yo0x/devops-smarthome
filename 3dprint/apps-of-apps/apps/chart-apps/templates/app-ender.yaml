@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: octoprint-app-ender-helm
+  namespace: argocd
+spec:
+  destination:
+    namespace: octoprint
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: octoprint
+    helm:
+      version: "0.1.1" # replace with your desired chart version
+      values: |
+        image:
+          repository: octoprint/octoprint
+          tag: latest
+    repoURL: https://halkeye.github.io/helm-charts
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
