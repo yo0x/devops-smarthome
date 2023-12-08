@@ -10,22 +10,21 @@ spec:
   project: default
   source:
     helm:
-      parameters:
-        - name: build.enabled
-          value: "false"
-        - name: deploy.route.enabled
-          value: "false"
-        - name: image.name
-          value: octoprint/octoprint
-        - name: image.tag
-          value: latest
-        - name: livenessProbe.enabled
-          value: "false"
-        - name: readinessProbe.enabled
-          value: "false"
-        - name: nodeSelector
-          value: |
-            type: raspberrypi
+      values: |
+        build:
+          enabled: false
+        deploy:
+          route:
+            enabled: false
+        image:
+          name: octoprint/octoprint
+          tag: latest
+        livenessProbe:
+          enabled: false
+        readinessProbe:
+          enabled: false
+        nodeSelector:
+          type: raspberrypi
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
