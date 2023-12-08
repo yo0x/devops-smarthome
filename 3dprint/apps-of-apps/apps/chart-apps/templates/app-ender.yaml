@@ -1,4 +1,3 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   destination:
-    namespace: demo
+    namespace: octoprint
     server: https://kubernetes.default.svc
   project: default
   source:
@@ -18,6 +17,12 @@ spec:
           value: "false"
         - name: image.name
           value: octoprint/octoprint
+        - name: image.tag
+          value: latest
+        - name: livenessProbe.enabled
+          value: "false"
+        - name: readinessProbe.enabled
+          value: "false"
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
