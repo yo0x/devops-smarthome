@@ -23,14 +23,9 @@ spec:
           value: "false"
         - name: readinessProbe.enabled
           value: "false"
-        - name: nodeSelector.dedicated
-          value: 3dprinter
-        - name: tolerations
+        - name: nodeSelector
           value: |
-            - key: "dedicated"
-              operator: "Equal"
-              value: "3dprinter"
-              effect: "NoSchedule"
+            type: raspberrypi
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
