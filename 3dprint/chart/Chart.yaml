@@ -1,0 +1,15 @@
+apiVersion: v1
+appVersion: "1.0"
+description: OctoPrint is the snappy web interface for your 3D printer that allows
+  you to control and monitor all aspects of your printer and print jobs, right from
+  your browser.
+home: https://octoprint.org/
+icon: https://octoprint.org/assets/img/logo.png
+maintainers:
+- email: helm@gavinmogan.com
+  name: Gavin Mogan
+name: octoprint
+sources:
+- https://github.com/foosel/OctoPrint
+- https://hub.docker.com/r/octoprint/octoprint
+version: 0.1.1
