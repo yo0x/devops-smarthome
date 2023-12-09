@@ -8,7 +8,7 @@ spec:
   accessModes:
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: standard
+  storageClassName: ""
   nfs:
     # The address 192.168.99.1 is the Minikube gateway to the host. This way
     # not the container IP will be visible by the NFS server on the host machine,
