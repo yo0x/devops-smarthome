@@ -90,5 +90,5 @@ persistence:
 device: "/dev/ttyACM0"
 
 nfs:
-  server: 192.169.1.126
+  server: 192.168.1.126
   path: '/home/y7x/k8s-sc/octoprint'
