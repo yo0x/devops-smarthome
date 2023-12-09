@@ -11,7 +11,7 @@ spec:
   source:
     helm:
       valueFiles:
-      - apps-of-apps/apps/chart-apps/my-values-file.yaml
+      - my-values-file.yaml
     chart: mailu
     repoURL: https://mailu.github.io/helm-charts/
     targetRevision: 0.3.5
