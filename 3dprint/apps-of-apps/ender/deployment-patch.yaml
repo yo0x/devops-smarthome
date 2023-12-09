@@ -17,7 +17,7 @@ spec:
       volumes:
       - name: ttyacm0
         hostPath:
-          path: /new/path/to/ttyACM0
+          path: /dev/ttyACM0
       # - name: video0
       #   hostPath:
       #     path: /new/path/to/video0

@@ -80,11 +80,11 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  enabled: false
-  existingClaim:
-  storageClassName:
+  enabled: true
+  existingClaim: 
+  storageClassName: standard
   accessModes:
     - ReadWriteOnce
-  size: 1Gi
+  size: 8Gi
 
 device: "/dev/ttyACM0"
