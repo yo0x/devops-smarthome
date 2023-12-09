@@ -14,3 +14,9 @@ spec:
     path: 3dprint/chart
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
