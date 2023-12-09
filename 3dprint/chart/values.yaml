@@ -82,7 +82,7 @@ persistence:
   ##
   enabled: true
   existingClaim: 
-  storageClassName:
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   size: 8Gi
