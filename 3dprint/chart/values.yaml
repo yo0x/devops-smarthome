@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: octoprint/octoprint
-  tag: 1.4.0
+  tag: latest
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -64,7 +64,8 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-nodeSelector: {}
+nodeSelector:
+  type: raspberrypi
 
 tolerations: []
 

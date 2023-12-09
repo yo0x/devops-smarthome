@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-octoprint-app-helm
+  name: root-octoprint-app-helm-local
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
@@ -14,5 +14,3 @@ spec:
     path: 3dprint/chart
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
-  values:
-    - my-values.yaml
