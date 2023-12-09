@@ -47,7 +47,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: data
-              mountPath: /home/octoprint/.octoprint
+              mountPath: /octoprint
             - name: ttyacm0
               mountPath: /dev/ttyACM0
       {{- with .Values.nodeSelector }}
