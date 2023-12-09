@@ -63,13 +63,17 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
+        # - name: data
+        #   {{- if .Values.persistence.enabled }}
+        #   persistentVolumeClaim:
+        #     claimName: {{ .Values.persistence.existingClaim | default (include "octoprint.fullname" .) }}
+        #   {{- else }}
+        #   emptyDir: {}
+        #   {{- end }}
         - name: data
-          {{- if .Values.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "octoprint.fullname" .) }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+          nfs:
+            server: {{ .Values.nfs.server }}
+            path: {{ .Values.nfs.path }}
         - name: ttyacm0
           hostPath:
             path: {{ .Values.device | quote }}

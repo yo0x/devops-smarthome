@@ -88,3 +88,7 @@ persistence:
   size: 8Gi
 
 device: "/dev/ttyACM0"
+
+nfs:
+  server: 192.169.1.126
+  path: '/home/y7x/k8s-sc/octoprint'
