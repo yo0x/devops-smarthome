@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-restreamer-app-helm
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: restreamer
+    name: in-cluster
+  project: default
+  source:
+    path: streamming/chart-apps
+    repoURL: git@github.com:yo0x/devops-smarthome.git
+    targetRevision: HEAD

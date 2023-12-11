@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: restreamer-ingress
+spec:
+  rules:
+  - host: hme43.local
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: restreamer-app
+            port:
+              number: 5000
