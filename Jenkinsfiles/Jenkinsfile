@@ -1,0 +1,10 @@
+node {
+    def mvnHome
+    stage('Preparation') { // for display purposes
+        checkout scm
+    }
+    stage('Build') {
+        ansiblePlaybook installation: 'ansibleTool', playbook: 'computers/pc_off.yml'
+
+    }
+}

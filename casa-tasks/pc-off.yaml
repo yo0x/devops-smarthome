@@ -1,0 +1,9 @@
+---
+- name: Turn off windows hosts
+  hosts: games
+  tasks:
+  - name: Shut down host
+    win_shell: shutdown -s -t 0
+    async: 1
+    poll: 0
+    ignore_errors: yes%  
