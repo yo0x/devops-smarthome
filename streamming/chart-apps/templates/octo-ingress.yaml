@@ -1,17 +1,20 @@
+#Ingress to expose the service outside the cluster
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: restreamer-ingress
+  name: ingress-service
   namespace: restreamer
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - host: hme43.local
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/stream"
-        backend:
-          service:
-            name: restreamer-app
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /stream(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: restreamer-app
+                port:
+                  number: 8080
