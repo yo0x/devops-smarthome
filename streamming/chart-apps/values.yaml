@@ -4,3 +4,9 @@ spec:
   source:
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
+
+env:
+  RS_USERNAME: admin
+  RS_PASSWORD: admin
+  RS_TIMEZONE: Asia/Jerusalem
+  

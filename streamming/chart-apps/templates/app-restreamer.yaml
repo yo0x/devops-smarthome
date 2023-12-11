@@ -9,17 +9,6 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    helm:
-      values: |
-        env:
-          - name: RS_USERNAME
-            value: "admin"
-          - name: RS_PASSWORD
-            value: "admin"
-          - name: RS_STREAM_NAME
-            value: "ender3 stream"
-          - name: RS_TIMEZONE
-            value: "Asia/Jerusalem"
     chart: restreamer
     repoURL: https://utkuozdemir.org/helm-charts
     targetRevision: 1.1.0
