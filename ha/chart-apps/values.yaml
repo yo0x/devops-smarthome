@@ -1,0 +1,19 @@
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: git@github.com:yo0x/devops-smarthome.git
+    targetRevision: HEAD
+
+env:
+  TZ: Asia/Jerusalem
+
+ingress:
+  main:
+    enabled: true
+    annotations:
+      nginx.org/websocket-services: home-assistant
+    hosts:
+      - host: home-assistant.example.org
+        paths:
+          - path: /
