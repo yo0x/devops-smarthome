@@ -6,7 +6,7 @@ spec:
     targetRevision: HEAD
 
 env:
-  RS_USERNAME: admin
-  RS_PASSWORD: admin
   RS_TIMEZONE: Asia/Jerusalem
-  
+secretEnv:
+  RS_PASSWORD: admin
+  RS_USERNAME: admin
