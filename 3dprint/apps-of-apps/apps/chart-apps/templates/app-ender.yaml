@@ -24,7 +24,7 @@ spec:
         readinessProbe:
           enabled: false
         nodeSelector:
-          type: raspberrypi
+          type: hme43
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1

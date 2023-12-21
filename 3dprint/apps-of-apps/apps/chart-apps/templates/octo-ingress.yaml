@@ -4,7 +4,7 @@ metadata:
   name: octoprint-ingress
 spec:
   rules:
-  - host: raspberrypi.local
+  - host: hme43.local
     http:
       paths:
       - pathType: Prefix
