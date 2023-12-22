@@ -12,9 +12,6 @@ spec:
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1
-    helm:
-      valueFiles:
-        - values.yaml
   syncPolicy:
     retry:
       backoff:
