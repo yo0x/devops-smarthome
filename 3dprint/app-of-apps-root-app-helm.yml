@@ -14,5 +14,3 @@ spec:
     path: 3dprint/apps-of-apps/apps/chart-apps
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
-    values:
-    - values.yaml
