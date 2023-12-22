@@ -9,22 +9,6 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    helm:
-      values: |
-        build:
-          enabled: false
-        deploy:
-          route:
-            enabled: false
-        image:
-          name: octoprint/octoprint
-          tag: latest
-        livenessProbe:
-          enabled: false
-        readinessProbe:
-          enabled: false
-        nodeSelector:
-          type: hme43
     chart: octoprint
     repoURL: https://halkeye.github.io/helm-charts/
     targetRevision: 0.1.1

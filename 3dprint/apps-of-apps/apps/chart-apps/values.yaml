@@ -4,3 +4,33 @@ spec:
   source:
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
+
+build:
+  enabled: false
+deploy:
+  route:
+    enabled: false
+image:
+  repository: octoprint/octoprint
+  tag: latest
+  pullPolicy: Always
+livenessProbe:
+  enabled: false
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+readinessProbe:
+  enabled: false
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+nodeSelector:
+  type: hme43
+service:
+  type: NodePort
+  port: 5000
+  nodePort: 30000
