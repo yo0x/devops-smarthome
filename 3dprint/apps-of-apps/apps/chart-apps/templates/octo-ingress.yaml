@@ -11,9 +11,8 @@ spec:
   - host: hme43.local
     http:
       paths:
-      - pathType: Prefix
+      - pathType: ImplementationSpecific
         path: /delta(/|$)(.*)
-        pathType: ImplementationSpecific
         backend:
           service:
             name: octoprint-app
