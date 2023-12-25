@@ -12,7 +12,7 @@ deploy:
     enabled: false
 image:
   repository: octoprint/octoprint
-  tag: latest
+  tag: 1.9.3
   pullPolicy: Always
 livenessProbe:
   enabled: false
