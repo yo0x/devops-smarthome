@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octo-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: nginx.ingress.kubernetes.io/configuration-from: nginx-config
+spec:
+  
+  rules:
+  - host: hme43.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: octoprint-app
+            port: 
+              number: 5000
+      - path: /webcam/  
+        pathType: Prefix
+        backend:
+          service: 
+            name: restreamer-app
+            port:
+              number: 80
