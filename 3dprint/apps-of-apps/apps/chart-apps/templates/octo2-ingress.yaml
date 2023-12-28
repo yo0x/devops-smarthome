@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: octo-ingress
   annotations:
-    nginx.ingress.kubernetes.io/configuration-snippet: nginx.ingress.kubernetes.io/configuration-from: nginx-config
+    nginx.ingress.kubernetes.io/configuration-from: nginx-config
 spec:
   
   rules:
