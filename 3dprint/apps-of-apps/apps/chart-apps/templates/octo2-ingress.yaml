@@ -10,7 +10,7 @@ spec:
   - host: hme43.local
     http:
       paths:
-      - path: /
+      - path: /delta
         pathType: Prefix
         backend:
           service: 
