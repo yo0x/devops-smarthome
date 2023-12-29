@@ -11,6 +11,6 @@ spec:
     name: in-cluster
   project: default
   source:
-    path: streamming/chart-apps
+    path: ha/chart-apps
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
