@@ -16,4 +16,4 @@ spec:
     targetRevision: HEAD
     helm:
       valueFiles:
-      - ha/chart-apps/my-val.yaml
+      - my-val.yaml
