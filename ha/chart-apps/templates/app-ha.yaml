@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     chart: home-assistant
-    repoURL: https://k8s-home-lab.github.io/helm-charts/
+    repoURL: https://k8s-home-lab.github.io/helm-charts
     targetRevision: 14.0.1
   syncPolicy:
     retry:
