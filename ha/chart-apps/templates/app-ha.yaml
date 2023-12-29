@@ -10,8 +10,8 @@ spec:
   project: default
   source:
     chart: home-assistant
-    repoURL: https://geek-cookbook.github.io/charts
-    targetRevision: 13.5.0
+    repoURL: https://k8s-home-lab.github.io/helm-charts/
+    targetRevision: 14.0.1
   syncPolicy:
     retry:
       backoff:
