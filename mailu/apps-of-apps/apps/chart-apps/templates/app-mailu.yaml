@@ -10,8 +10,24 @@ spec:
   project: default
   source:
     helm:
-      valueFiles:
-      - my-values-file.yaml
+      values: |
+      domain: mail.pentet.co.il
+      hostnames:
+        - mail.pentet.co.il
+      initialAccount:
+        domain: mail.pentet.co.il
+        password: chang3m3!
+        username: mailadmin
+      logLevel: INFO
+      limits:
+        authRatelimit:
+          ip: 100/minute;3600/hour
+          user: 100/day
+        messageSizeLimitInMegabytes: 200
+      persistence:
+        size: 100Gi
+        storageClass: fast
+      secretKey: chang3m3!
     chart: mailu
     repoURL: https://mailu.github.io/helm-charts/
     targetRevision: 0.3.5
