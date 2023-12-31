@@ -16,7 +16,7 @@ spec:
       valueFiles:
       - $values/ha/chart-apps/my-val.yaml
     repoURL: git@github.com:yo0x/devops-smarthome.git
-    targetRevision: main
+    targetRevision: HEAD
     ref: values
   destination:
     server: 'https://kubernetes.default.svc'
@@ -25,8 +25,12 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
     retry:
       limit: 5
       backoff:
