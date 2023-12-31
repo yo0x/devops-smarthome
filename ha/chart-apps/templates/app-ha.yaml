@@ -13,11 +13,12 @@ spec:
     targetRevision: 14.0.1
     chart: home-assistant
     helm:
-      valueFiles:
-      - $values/ha/chart-apps/my-val.yaml
-    repoURL: git@github.com:yo0x/devops-smarthome.git
-    targetRevision: HEAD
-    ref: values
+      values: |
+        service:
+          main:
+            ports:
+              http:
+                port: 8124
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: ha
