@@ -9,8 +9,8 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    repoURL: 'https://k8s-home-lab.github.io/helm-charts'
-    targetRevision: 14.0.1
+    repoURL: https://geek-cookbook.github.io/charts
+    targetRevision: 13.5.0
     chart: home-assistant
     helm:
       values: |
@@ -18,7 +18,26 @@ spec:
           main:
             ports:
               http:
-                port: 8124
+                port: 8123
+        hostNetwork: true
+        TZ: 'Asia/Jerusalem'
+        dnsPolicy: ClusterFirstWithHostNet
+        addons:
+        # -- Enable and configure codeserver for the chart.
+        #    This allows for easy access to configuration.yaml
+        # @default -- See values.yaml
+        codeserver:
+          enabled: true
+          args:
+            - --auth
+            - none
+            - --user-data-dir
+            - /data/config/.vscode
+          volumeMounts:
+          - name: config
+            mountPath: /data/config
+
+
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: ha
