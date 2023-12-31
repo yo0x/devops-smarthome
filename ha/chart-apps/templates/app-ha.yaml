@@ -14,11 +14,6 @@ spec:
     chart: home-assistant
     helm:
       values: |
-        service:
-          main:
-            ports:
-              http:
-                port: 8123
         hostNetwork: true
         TZ: 'Asia/Jerusalem'
         dnsPolicy: ClusterFirstWithHostNet
