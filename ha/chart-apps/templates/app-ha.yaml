@@ -12,6 +12,9 @@ spec:
     repoURL: 'https://k8s-home-lab.github.io/helm-charts'
     targetRevision: 14.0.1
     chart: home-assistant
+    helm:
+      valueFiles:
+      - ha/chart-apps/my-val.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: ha
