@@ -17,17 +17,6 @@ spec:
         image:
           repository: octoprint/octoprint
           tag: latest
-        ingress:
-        enabled: true
-        annotations: {}
-          # kubernetes.io/ingress.class: nginx
-          # kubernetes.io/tls-acme: "true"
-        hosts:
-          - host: hme43.local
-            paths: 
-              - /delta
-        tls: []
-
         device: "/dev/ttyUSB0"
         persistence:
           enabled: true
