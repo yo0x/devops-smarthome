@@ -9,6 +9,10 @@ spec:
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
     path: monitoring
+    helm:
+      valueFiles:
+      - values-prometheus.yaml
+      - values-grafana.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -18,10 +22,6 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
-  helm:
-    valueFiles:
-    - values-prometheus.yaml
-    - values-grafana.yaml
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -33,3 +33,18 @@ data:
     {{- include "prometheus-values" . | nindent 4 }}
   values-grafana.yaml: |
     {{- include "grafana-values" . | nindent 4 }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+parameters:
+  archiveOnDelete: "false"
+  server: 192.168.1.101
+  path: /monitoring
+mountOptions:
+  - soft
+  - intr
+  - nolock
+  - rw
