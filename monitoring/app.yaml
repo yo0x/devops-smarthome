@@ -9,10 +9,10 @@ spec:
     repoURL: git@github.com:yo0x/devops-smarthome.git
     targetRevision: HEAD
     path: monitoring
-    helm:
-      valueFiles:
-      - values-prometheus.yaml
-      - values-grafana.yaml
+    helm: {}
+      # valueFiles:
+      # - values-prometheus.yaml
+      # - values-grafana.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
