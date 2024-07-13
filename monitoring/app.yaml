@@ -23,17 +23,6 @@ spec:
     syncOptions:
     - CreateNamespace=true
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: monitoring-helm-values
-  namespace: argocd
-data:
-  values-prometheus.yaml: |
-    {{- include "prometheus-values" . | nindent 4 }}
-  values-grafana.yaml: |
-    {{- include "grafana-values" . | nindent 4 }}
----
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
