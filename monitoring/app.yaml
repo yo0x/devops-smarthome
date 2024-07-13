@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-repo/monitoring-config.git
+    targetRevision: HEAD
+    path: monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  helm:
+    valueFiles:
+    - values-prometheus.yaml
+    - values-grafana.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-helm-values
+  namespace: argocd
+data:
+  values-prometheus.yaml: |
+    {{- include "prometheus-values" . | nindent 4 }}
+  values-grafana.yaml: |
+    {{- include "grafana-values" . | nindent 4 }}

@@ -1,0 +1,30 @@
+global:
+  evaluation_interval: 1m
+  scrape_interval: 1m
+  scrape_timeout: 10s
+
+server:
+  persistentVolume:
+    enabled: true
+    storageClass: "nfs-client"
+    size: 8Gi
+    accessModes:
+      - ReadWriteOnce
+
+alertmanager:
+  persistentVolume:
+    enabled: true
+    storageClass: "nfs-client"
+    size: 2Gi
+    accessModes:
+      - ReadWriteOnce
+
+nfs:
+  server: 192.168.1.101
+  path: "/monitoring"
+
+storageClass:
+  name: nfs-client
+  provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+  parameters:
+    archiveOnDelete: "false"

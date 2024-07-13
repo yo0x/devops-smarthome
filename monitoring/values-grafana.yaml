@@ -1,0 +1,26 @@
+persistence:
+  enabled: true
+  storageClassName: "nfs-client"
+  size: 5Gi
+  accessModes:
+    - ReadWriteOnce
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server
+      access: proxy
+      isDefault: true
+
+nfs:
+  server: 192.168.1.101
+  path: "/monitoring"
+
+storageClass:
+  name: nfs-client
+  provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+  parameters:
+    archiveOnDelete: "false"
