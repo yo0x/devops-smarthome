@@ -22,7 +22,7 @@ prometheus:
 
   nfs:
     server: 192.168.1.101
-    path: "/monitoring"
+    path: "/mnt/DATA/k8s/monitoring"
 
   storageClass:
     name: nfs-client
@@ -50,10 +50,14 @@ grafana:
 
   nfs:
     server: 192.168.1.101
-    path: "/monitoring"
+    path: "/mnt/DATA/k8s/monitoring"
 
   storageClass:
     name: nfs-client
     provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
     parameters:
       archiveOnDelete: "false"
+    mountOptions:
+      - nosuid
+      - noexec
+      - nodev
