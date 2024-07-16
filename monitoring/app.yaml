@@ -23,17 +23,11 @@ spec:
     syncOptions:
     - CreateNamespace=true
 ---
+
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: nfs-client
-provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+provisioner: storage.io/nfs # or choose another name, must match deployment's env PROVISIONER_NAME'
 parameters:
   archiveOnDelete: "false"
-  server: 192.168.1.101
-  path: /mnt/DATA/k8s/monitoring
-mountOptions:
-  - soft
-  - intr
-  - nolock
-  - rw

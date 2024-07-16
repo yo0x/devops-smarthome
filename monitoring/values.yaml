@@ -54,7 +54,7 @@ grafana:
 
   storageClass:
     name: nfs-client
-    provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+    provisioner: storage.io/nfs 
     parameters:
       archiveOnDelete: "false"
     mountOptions:
