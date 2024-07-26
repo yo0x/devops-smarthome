@@ -1,0 +1,37 @@
+global:
+  env: dev
+
+home-assistant:
+  hostNetwork: true
+  TZ: 'Asia/Jerusalem'
+  dnsPolicy: ClusterFirstWithHostNet
+  addons:
+  # -- Enable and configure codeserver for the chart.
+  #    This allows for easy access to configuration.yaml
+  # @default -- See values.yaml
+  codeserver:
+    enabled: true
+    args:
+      - --auth
+      - none
+      - --user-data-dir
+      - /data/config/.vscode
+    volumeMounts:
+    - name: config
+      mountPath: /data/config
+  replicaCount: 1
+  image:
+    tag: latest
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+app2:
+  # ... app2 specific values
+
+app3:
+  # ... app3 specific values

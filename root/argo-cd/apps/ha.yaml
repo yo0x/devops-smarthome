@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app1
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://geek-cookbook.github.io/charts
+    targetRevision: 13.5.0
+    chart: home-assistant
+    helm:
+      valueFiles:
+      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/values-{{.Values.global.env}}.yaml
+      values: |
+        global:
+          env: dev
+    plugin:
+      name: kustomized-helm
+      env:
+      - name: KUSTOMIZE_BASE
+        value: https://github.com/your-org/meta-repo.git/kustomize/base
+      - name: KUSTOMIZE_OVERLAY
+        value: https://github.com/your-org/meta-repo.git/kustomize/{{.Values.global.env}}
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+  - group: "*"
+    kind: "*"
+    jsonPointers:
+    - /metadata/labels

@@ -1,0 +1,20 @@
+global:
+  env: dev
+
+app1:
+  replicaCount: 1
+  image:
+    tag: latest
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+app2:
+  # ... app2 specific values
+
+app3:
+  # ... app3 specific values
