@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-server-pv-claim
+spec:
+  capacity:
+    storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: "/home/y7x/K8S_NFS_DATA/prometheus-server"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-server-pv-claim
+spec:
+  capacity:
+    storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: "/home/y7x/K8S_NFS_DATA/grafana-server"

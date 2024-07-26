@@ -7,36 +7,29 @@ prometheus:
   server:
     persistentVolume:
       enabled: true
-      storageClass: "nfs-client"
+      storageClass: ""
       size: 8Gi
       accessModes:
         - ReadWriteOnce
+      existingClaim: prometheus-server-pv-claim
 
   alertmanager:
     persistentVolume:
       enabled: true
-      storageClass: "nfs-client"
+      storageClass: ""
       size: 2Gi
       accessModes:
         - ReadWriteOnce
-
-  nfs:
-    server: 192.168.1.101
-    path: "/mnt/DATA/k8s/monitoring"
-
-  storageClass:
-    name: nfs-client
-    provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
-    parameters:
-      archiveOnDelete: "false"
+      existingClaim: prometheus-server-pv-claim
 
 grafana:
   persistence:
     enabled: true
-    storageClassName: "nfs-client"
+    storageClassName: ""
     size: 5Gi
     accessModes:
       - ReadWriteOnce
+    existingClaim: grafana-pv-claim
 
   datasources:
     datasources.yaml:
@@ -47,17 +40,3 @@ grafana:
         url: http://prometheus-server
         access: proxy
         isDefault: true
-
-  nfs:
-    server: 192.168.1.101
-    path: "/mnt/DATA/k8s/monitoring"
-
-  storageClass:
-    name: nfs-client
-    provisioner: storage.io/nfs 
-    parameters:
-      archiveOnDelete: "false"
-    mountOptions:
-      - nosuid
-      - noexec
-      - nodev
