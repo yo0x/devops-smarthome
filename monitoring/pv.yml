@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: "/home/y7x/K8S_NFS_DATA/prometheus-server"
+    path: "/home/y7x/K8S_LOCAL/prometheus-server"
 
 ---
 
@@ -28,7 +28,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: "/home/y7x/K8S_NFS_DATA/grafana-server"
+    path: "/home/y7x/K8S_LOCAL/grafana-server"
 
 ---
 
@@ -45,4 +45,4 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: "/home/y7x/K8S_NFS_DATA/alertmanager-server"
+    path: "/home/y7x/K8S_LOCAL/alertmanager-server"
