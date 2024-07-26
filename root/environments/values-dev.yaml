@@ -22,7 +22,7 @@ home-assistant:
   volumes:
   - name: config-volume
     persistentVolumeClaim:
-      claimName: local-pvc
+      claimName: ha-server-pv-claim
   replicaCount: 1
   image:
     tag: latest
