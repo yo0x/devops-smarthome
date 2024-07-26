@@ -15,13 +15,13 @@ spec:
       values: |
         global:
           env: dev
-    plugin:
-      name: kustomized-helm
-      env: 
-        - name: KUSTOMIZE_BASE
-          value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/base
-        - name: KUSTOMIZE_OVERLAY
-          value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/dev
+    # plugin:
+    #   name: kustomized-helm
+    #   env: 
+    #     - name: KUSTOMIZE_BASE
+    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/base
+    #     - name: KUSTOMIZE_OVERLAY
+    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/dev
 
   destination:
     server: https://kubernetes.default.svc
