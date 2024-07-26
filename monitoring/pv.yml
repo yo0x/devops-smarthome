@@ -21,7 +21,7 @@ metadata:
   name: grafana-server-pv
 spec:
   capacity:
-    storage: 8Gi
+    storage: 5Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
