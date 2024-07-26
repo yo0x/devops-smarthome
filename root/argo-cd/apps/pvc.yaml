@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ha-server-pv-claim
+  namespace: ha-dev
 spec:
   storageClassName: ""
   accessModes:
