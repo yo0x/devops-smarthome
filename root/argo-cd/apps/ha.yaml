@@ -11,7 +11,7 @@ spec:
     chart: home-assistant
     helm:
       valueFiles:
-      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/values-{{.Values.global.env}}.yaml
+      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/values-dev.yaml
       values: |
         global:
           env: dev
