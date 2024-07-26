@@ -1,3 +1,4 @@
+'''
 root/ (meta-repository)
 ├── environments/
 │   ├── values-dev.yaml
@@ -39,7 +40,7 @@ app3-repo/
 ├── Chart.yaml
 ├── values.yaml
 └── templates/
-
+'''
 
 This setup accommodates apps with Helm charts in different Git repositories while maintaining a DRY approach:
 
