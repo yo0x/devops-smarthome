@@ -16,6 +16,7 @@ spec:
       values: |
         global:
           env: dev
+          namespace: ha-dev
     # plugin:
     #   name: kustomized-helm
     #   env: 
@@ -26,6 +27,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
+    namespace: ha-dev
   syncPolicy:
     automated:
       prune: true
