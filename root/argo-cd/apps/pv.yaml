@@ -4,7 +4,7 @@ metadata:
   name: local-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 2Gi
   accessModes:
     - ReadWriteMany
   hostPath:
