@@ -20,7 +20,7 @@ prometheus:
       size: 2Gi
       accessModes:
         - ReadWriteOnce
-      existingClaim: prometheus-server-alertmanager-pv
+      existingClaim: server-alertmanager-pv-claim
 
 grafana:
   persistence:
