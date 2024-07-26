@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: prometheus-server-alertmanager-pv
+  name: server-alertmanager-pv
 spec:
   capacity:
     storage: 2Gi
@@ -45,4 +45,4 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: "/home/y7x/K8S_NFS_DATA/prometheus-alertmanager-server"
+    path: "/home/y7x/K8S_NFS_DATA/alertmanager-server"
