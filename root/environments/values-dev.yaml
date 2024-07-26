@@ -19,6 +19,10 @@ home-assistant:
     volumeMounts:
     - name: config
       mountPath: /data/config
+  volumes:
+  - name: config-volume
+    persistentVolumeClaim:
+      claimName: local-pvc
   replicaCount: 1
   image:
     tag: latest
