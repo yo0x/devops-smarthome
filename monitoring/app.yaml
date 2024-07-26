@@ -22,12 +22,3 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
----
-
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-client
-provisioner: storage.io/nfs # or choose another name, must match deployment's env PROVISIONER_NAME'
-parameters:
-  archiveOnDelete: "false"
