@@ -9,7 +9,7 @@ spec:
     repoURL: https://geek-cookbook.github.io/charts
     targetRevision: 13.5.0
     chart: home-assistant
-    namespace: ha-dev
+    # namespace: ha-dev
     helm:
       valueFiles:
       - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/ha-values-dev.yaml
