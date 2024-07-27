@@ -12,7 +12,7 @@ spec:
     # namespace: ha-dev
     helm:
       valueFiles:
-      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/ha-values-dev1.yaml
+      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/ha-values-dev2.yaml
 
     # plugin:
     #   name: kustomized-helm
