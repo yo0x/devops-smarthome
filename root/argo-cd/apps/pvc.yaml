@@ -4,7 +4,7 @@ metadata:
   name: home-assistant-config
   namespace: ha-dev
 spec:
-  storageClassName: ""
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
   resources:
