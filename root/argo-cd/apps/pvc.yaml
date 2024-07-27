@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ha-server-pv-claim
+  name: home-assistant-config
   namespace: ha-dev
 spec:
   storageClassName: ""
