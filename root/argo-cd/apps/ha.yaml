@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://geek-cookbook.github.io/charts
-    targetRevision: 13.5.0
+    repoURL: http://pajikos.github.io/home-assistant-helm-chart/
+    targetRevision: 0.2.70
     chart: home-assistant
     # namespace: ha-dev
     helm:
