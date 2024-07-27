@@ -1,5 +1,13 @@
 #
 
+image:
+  # -- image repository
+  repository: ghcr.io/home-assistant/home-assistant
+  # -- image tag
+  # @default -- chart.appVersion
+  tag: latest
+  # -- image pull policy
+  pullPolicy: IfNotPresent
 
 # -- environment variables.
 # @default -- See below
