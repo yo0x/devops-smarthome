@@ -36,7 +36,12 @@ securityContext:
 persistence:
   config:
     enabled: true
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    existingClaim: ha-server-pv-claim
     
+
   # -- Configure a hostPathMount to mount a USB device in the container.
   # @default -- See values.yaml
   # usb:
