@@ -13,10 +13,7 @@ spec:
     helm:
       valueFiles:
       - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/ha-values-dev.yaml
-      values: |
-        global:
-          env: dev
-          namespace: ha-dev
+
     # plugin:
     #   name: kustomized-helm
     #   env: 
