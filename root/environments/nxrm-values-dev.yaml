@@ -1,5 +1,5 @@
 storageClass:
-  name: nfs
+  name: nfs-client
 
 secret:
   license:
