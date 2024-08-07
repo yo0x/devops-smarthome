@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://helm.melillo.me/
+    repoURL: https://phntom.kix.co.il/charts/
     targetRevision: 2.8.1
-    chart: gmelillo/docker-registry
+    chart: docker-registry-integ phntom/docker-registry
     # namespace: ha-dev
     helm:
       valueFiles:
