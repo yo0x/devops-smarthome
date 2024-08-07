@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://helm.melillo.me
+    repoURL: https://helm.melillo.me/
     targetRevision: 2.8.1
     chart: gmelillo/docker-registry
     # namespace: ha-dev
