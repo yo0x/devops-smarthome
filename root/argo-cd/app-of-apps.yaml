@@ -16,3 +16,10 @@ spec:
     automated:
       prune: true
       selfHeal: true
+  ignoreDifferences: # ignore differences in the following fields Docker Registry
+    - group: argoproj.io
+      kind: Application
+      name: docker-reg
+      namespace: argocd
+      jsonPointers:
+      - /spec/source/path
