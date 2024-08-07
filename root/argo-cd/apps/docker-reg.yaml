@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docker-reg
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://helm.melillo.me
+    targetRevision: 2.8.1
+    chart: gmelillo/docker-registry
+    # namespace: ha-dev
+    helm:
+      valueFiles:
+      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/docker-reg-vals.yaml
+
+    # plugin:
+    #   name: kustomized-helm
+    #   env: 
+    #     - name: KUSTOMIZE_BASE
+    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/base
+    #     - name: KUSTOMIZE_OVERLAY
+    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docker-reg
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  # ignoreDifferences:
+  # - group: "*"
+  #   kind: "*"
+  #   jsonPointers:
+  #   - /metadata/labels
+  # configManagementPlugins:
+  #   - name: kustomized-helm
+  #     init:
+  #       command: ["/bin/sh", "-c"]
+  #       args: ["helm dependency build"]
+  #     generate:
+  #       command: ["/bin/sh", "-c"]
+  #       args: ["helm template --release-name release-name . > all.yaml && kustomize build"]
