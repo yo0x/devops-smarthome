@@ -332,3 +332,5 @@ ASALocalRun/
 *.DS_Store
 
 ha/home-assistant/*
+root/resources/docker-reg/registry-creds/**
+root/resources/docker-reg/htpasswd-secret.yaml

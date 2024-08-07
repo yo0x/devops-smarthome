@@ -6,22 +6,20 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://phntom.kix.co.il/charts/
-    targetRevision: 2.8.1
-    chart: stable/docker-registry
-    # namespace: ha-dev
+    repoURL: https://helm.twun.io
+    targetRevision: 2.2.2
+    chart: twuni/docker-registry 
     helm:
-      valueFiles:
-      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/docker-reg-vals.yaml
-
-    # plugin:
-    #   name: kustomized-helm
-    #   env: 
-    #     - name: KUSTOMIZE_BASE
-    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/base
-    #     - name: KUSTOMIZE_OVERLAY
-    #       value: https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/kustomize/dev
-
+      values: |
+        replicaCount: 1
+        persistence:
+          enabled: true
+          size: 30Gi
+          deleteEnabled: true
+          storageClass: nfs-client
+          existingClaim: docker-registry-pv-claim
+        secrets:
+          htpasswdSecretName: htpasswd-secret
   destination:
     server: https://kubernetes.default.svc
     namespace: docker-reg
@@ -29,16 +27,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-  # ignoreDifferences:
-  # - group: "*"
-  #   kind: "*"
-  #   jsonPointers:
-  #   - /metadata/labels
-  # configManagementPlugins:
-  #   - name: kustomized-helm
-  #     init:
-  #       command: ["/bin/sh", "-c"]
-  #       args: ["helm dependency build"]
-  #     generate:
-  #       command: ["/bin/sh", "-c"]
-  #       args: ["helm template --release-name release-name . > all.yaml && kustomize build"]

@@ -1,4 +1,30 @@
 replicaCount: 1
+persistence:
+  enabled: true
+  size: 60Gi
+  deleteEnabled: true
+  storageClass: 
+  existingClaim: docker-registry-pv-claim
+  accessMode: 'ReadWriteOnce'
+
+  # storageClass: '-'
+secrets:
+  htpasswdSecretName: htpasswd-secret
+  haSharedSecret: ""
+  htpasswd: ""
+  # Secrets for Azure
+  #   azure:
+  #     accountName: ""
+  #     accountKey: ""
+  #     container: ""
+  # Secrets for S3 access and secret keys
+  #   s3:
+  #     accessKey: ""
+  #     secretKey: ""
+  # Secrets for Swift username and password
+  #   swift:
+  #     username: ""
+  #     password: ""
 
 updateStrategy:
   # type: RollingUpdate
@@ -25,7 +51,7 @@ service:
   annotations: {}
   # foo.io/bar: "true"
 ingress:
-  enabled: false
+  enabled: true
   path: /
   # Used to create an Ingress record.
   hosts:
@@ -50,33 +76,12 @@ resources: {}
   # requests:
   #  cpu: 100m
   #  memory: 128Mi
-persistence:
-  accessMode: 'ReadWriteOnce'
-  enabled: false
-  size: 10Gi
-  # storageClass: '-'
 
 # set the type of filesystem to use: filesystem, s3
 storage: filesystem
 
 # Set this to name of secret for tls certs
 # tlsSecretName: registry.docker.example.com
-secrets:
-  haSharedSecret: ""
-  htpasswd: ""
-# Secrets for Azure
-#   azure:
-#     accountName: ""
-#     accountKey: ""
-#     container: ""
-# Secrets for S3 access and secret keys
-#   s3:
-#     accessKey: ""
-#     secretKey: ""
-# Secrets for Swift username and password
-#   swift:
-#     username: ""
-#     password: ""
 
 # Options for s3 storage type:
 # s3:
