@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://phntom.kix.co.il/charts/
     targetRevision: 2.8.1
-    chart: phntom/docker-registry
+    chart: stable/docker-registry
     # namespace: ha-dev
     helm:
       valueFiles:
