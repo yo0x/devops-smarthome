@@ -16,8 +16,8 @@ spec:
           enabled: true
           size: 30Gi
           deleteEnabled: true
-          storageClass: nfs-client
-          existingClaim: docker-registry-pv-claim
+          storageClass: local-storage
+          existingClaim: docker-registry-pv-claim-local
         secrets:
           htpasswdSecretName: htpasswd-secret
   destination:
