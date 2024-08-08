@@ -1,0 +1,14 @@
+---
+replicaCount: 1
+
+persistence:
+  enabled: true
+  size: 30Gi
+  deleteEnabled: true
+  storageClass: local-storage
+  existingClaim: docker-registry-pv-claim-local
+secrets:
+  htpasswd: 
+service:
+  type: NodePort
+  nodePort: 32000 

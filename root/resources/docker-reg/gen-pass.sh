@@ -1,5 +1,5 @@
-export REGISTRY_USER=admin
-export REGISTRY_PASS=registryPass
+export REGISTRY_USER=
+export REGISTRY_PASS=
 export DESTINATION_FOLDER=./registry-creds
    
 # Backup credentials to local files (in case you'll forget them later on)
