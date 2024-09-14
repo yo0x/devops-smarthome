@@ -46,3 +46,20 @@ spec:
   storageClassName: ""
   hostPath:
     path: "/home/y7x/K8S_LOCAL/alertmanager-server"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: influxdb-pv
+spec:
+  capacity:
+    storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "local-storage"
+  hostPath:
+    path: "/home/y7x/K8S_LOCAL/torandb"
