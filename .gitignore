@@ -334,3 +334,4 @@ ASALocalRun/
 ha/home-assistant/*
 root/resources/docker-reg/registry-creds/**
 root/resources/docker-reg/htpasswd-secret.yaml
+docker-reg/registry-creds/htpasswd

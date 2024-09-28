@@ -1,0 +1,3 @@
+registryPass
+admin
+admin
