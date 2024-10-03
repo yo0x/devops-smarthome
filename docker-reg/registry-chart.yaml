@@ -2,9 +2,12 @@
 replicaCount: 1
 persistence:
   enabled: true
-  size: 60Gi
+  size: 20Gi
   deleteEnabled: true
-  storageClass: csi-cinder-classic
+  storageClass: nfs-client
   existingClaim: docker-registry-pv-claim
 secrets:
-  htpasswd: admin:$2y$05$MRzfrgQCk2lM/jL90ggDzObPsCWEG7GRIIRqbR8ZanCobYQe.lHby
+  htpasswd: 
+service:
+  type: NodePort
+  nodePort: 32222
