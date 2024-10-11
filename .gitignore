@@ -335,3 +335,8 @@ ha/home-assistant/*
 root/resources/docker-reg/registry-creds/**
 root/resources/docker-reg/htpasswd-secret.yaml
 docker-reg/registry-creds/htpasswd
+proxy-home/.$proxy.drawio.dtmp
+proxy-home/.htpasswd
+proxy-home/ca.b64
+proxy-home/ca.crt
+proxy-home/patch.json

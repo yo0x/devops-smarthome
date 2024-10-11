@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+
+name: nginx-bilgicloud-ingress
+annotations:
+   kubernetes.io/ingress.class: nginx
+
+spec:
+  rules:
+  - host: cabezon.yonor.me
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: yakuphan-devops
+             port:
+               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-reverse-proxy
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - cabezon.yonor.me
+    secretName: nginx-tls
+  rules:
+  - host: cabezon.yonor.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port: 
+              number: 80

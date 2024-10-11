@@ -1,0 +1,137 @@
+# 1. Install cert-manager
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: cert-manager
+# ---
+# Apply the cert-manager manifest (example version, check for the latest)
+# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.1/cert-manager.yaml
+
+---
+# 2. Create an Issuer or ClusterIssuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: ingress-nginx
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: yonor@me.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+# 3. Update your Ingress resource to use cert-manager
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-reverse-proxy
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  namespace: ingress-nginx
+spec:
+  tls:
+  - hosts:
+    - cabezon.yonor.me
+    secretName: nginx-tls
+  rules:
+  - host: cabezon.yonor.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port: 
+              number: 80
+
+---
+# 4. Update the NGINX ConfigMap to use the new secret
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: ingress-nginx
+data:
+  nginx.conf: |
+    events {}
+    http {
+      server {
+        listen 80;
+        server_name cabezon.yonor.me;
+        
+        location / {
+          return 301 https://$host$request_uri;
+        }
+      }
+
+      server {
+        listen 443 ssl;
+        server_name cabezon.yonor.me;
+
+        ssl_certificate /etc/nginx/ssl/tls.crt;
+        ssl_certificate_key /etc/nginx/ssl/tls.key;
+
+        location / {
+          auth_basic "Restricted Access";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+
+          proxy_pass http://192.168.1.213:11434;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+    }
+
+---
+# 5. Update the Deployment to mount the new TLS secret
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-reverse-proxy
+  namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-reverse-proxy
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: nginx-tls
+          mountPath: /etc/nginx/ssl
+        - name: htpasswd
+          mountPath: /etc/nginx/.htpasswd
+          subPath: .htpasswd
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: nginx-tls
+        secret:
+          secretName: nginx-tls
+      - name: htpasswd
+        secret:
+          secretName: nginx-htpasswd
