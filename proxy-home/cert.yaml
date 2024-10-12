@@ -22,9 +22,9 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:
-    - http01:
-        ingress:
-          class: nginx
+      - http01:
+          ingress:
+            class: nginx
 
 ---
 # 3. Update your Ingress resource to use cert-manager
@@ -33,25 +33,24 @@ kind: Ingress
 metadata:
   name: nginx-reverse-proxy
   annotations:
+    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  namespace: ingress-nginx
 spec:
-  ingressClassName: nginx
   tls:
-  - hosts:
-    - cabezon.yonor.me
-    secretName: nginx-tls
+    - hosts:
+        - cabezon.yonor.me
+      secretName: nginx-tls
   rules:
-  - host: cabezon.yonor.me
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx-reverse-proxy
-            port: 
-              number: 80
+    - host: cabezon.yonor.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-reverse-proxy
+                port:
+                  number: 443
 
 ---
 # 4. Update the NGINX ConfigMap to use the new secret
@@ -62,37 +61,38 @@ metadata:
   namespace: ingress-nginx
 data:
   nginx.conf: |
+    error_log /dev/stdout debug;
     events {}
     http {
       server {
         listen 80;
         server_name cabezon.yonor.me;
-        
+
         location / {
           return 301 https://$host$request_uri;
         }
       }
-
       server {
         listen 443 ssl;
         server_name cabezon.yonor.me;
-
         ssl_certificate /etc/nginx/ssl/tls.crt;
         ssl_certificate_key /etc/nginx/ssl/tls.key;
-
         location / {
-          auth_basic "Restricted Access";
-          auth_basic_user_file /etc/nginx/.htpasswd;
-
           proxy_pass http://192.168.1.213:11434;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_connect_timeout 10s;
+          proxy_send_timeout 10s;
+          proxy_read_timeout 10s;
+
+          error_log /dev/stdout debug;
+          access_log /dev/stdout;
         }
       }
     }
-
 ---
 # 5. Update the Deployment to mount the new TLS secret
 apiVersion: apps/v1
@@ -111,27 +111,27 @@ spec:
         app: nginx-reverse-proxy
     spec:
       containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
-        - name: nginx-tls
-          mountPath: /etc/nginx/ssl
-        - name: htpasswd
-          mountPath: /etc/nginx/.htpasswd
-          subPath: .htpasswd
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: nginx-tls
+              mountPath: /etc/nginx/ssl
+            - name: htpasswd
+              mountPath: /etc/nginx/.htpasswd
+              subPath: .htpasswd
       volumes:
-      - name: nginx-config
-        configMap:
-          name: nginx-config
-      - name: nginx-tls
-        secret:
-          secretName: nginx-tls
-      - name: htpasswd
-        secret:
-          secretName: nginx-htpasswd
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+        - name: nginx-tls
+          secret:
+            secretName: nginx-tls
+        - name: htpasswd
+          secret:
+            secretName: nginx-htpasswd
