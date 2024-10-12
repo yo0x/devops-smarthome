@@ -10,21 +10,21 @@
 
 ---
 # 2. Create an Issuer or ClusterIssuer
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-  namespace: ingress-nginx
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: yonor@me.com
-    privateKeySecretRef:
-      name: letsencrypt-prod-account-key
-    solvers:
-      - http01:
-          ingress:
-            class: nginx
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: letsencrypt-prod
+#   namespace: ingress-nginx
+# spec:
+#   acme:
+#     server: https://acme-v02.api.letsencrypt.org/directory
+#     email: yonor@me.com
+#     privateKeySecretRef:
+#       name: letsencrypt-prod-account-key
+#     solvers:
+#       - http01:
+#           ingress:
+#             class: nginx
 
 ---
 # 3. Update your Ingress resource to use cert-manager
@@ -32,25 +32,26 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-reverse-proxy
+  namespace: ingress-nginx
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
-    - hosts:
-        - cabezon.yonor.me
-      secretName: nginx-tls
+  - hosts:
+    - cabezon.yonor.me
+    secretName: nginx-tls
+  ingressClassName: nginx
   rules:
-    - host: cabezon.yonor.me
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: nginx-reverse-proxy
-                port:
-                  number: 443
+  - host: cabezon.yonor.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port:
+              number: 80
 
 ---
 # 4. Update the NGINX ConfigMap to use the new secret
@@ -61,38 +62,53 @@ metadata:
   namespace: ingress-nginx
 data:
   nginx.conf: |
-    error_log /dev/stdout debug;
-    events {}
-    http {
-      server {
-        listen 80;
-        server_name cabezon.yonor.me;
-
-        location / {
-          return 301 https://$host$request_uri;
+      error_log /dev/stdout debug;
+      events {}
+      http {
+        server {
+          listen 80;
+          server_name cabezon.yonor.me;
+          
+          # Only redirect if the request is not already HTTPS
+          if ($http_x_forwarded_proto != 'https') {
+            return 301 https://$host$request_uri;
+          }
+          
+          location / {
+            proxy_pass http://192.168.1.213:11434;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_connect_timeout 10s;
+            proxy_send_timeout 10s;
+            proxy_read_timeout 10s;
+            error_log /dev/stdout debug;
+            access_log /dev/stdout;
+          }
+        }
+        
+        server {
+          listen 443 ssl;
+          server_name cabezon.yonor.me;
+          
+          ssl_certificate /etc/nginx/ssl/tls.crt;
+          ssl_certificate_key /etc/nginx/ssl/tls.key;
+          
+          location / {
+            proxy_pass http://192.168.1.213:11434;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_connect_timeout 10s;
+            proxy_send_timeout 10s;
+            proxy_read_timeout 10s;
+            error_log /dev/stdout debug;
+            access_log /dev/stdout;
+          }
         }
       }
-      server {
-        listen 443 ssl;
-        server_name cabezon.yonor.me;
-        ssl_certificate /etc/nginx/ssl/tls.crt;
-        ssl_certificate_key /etc/nginx/ssl/tls.key;
-        location / {
-          proxy_pass http://192.168.1.213:11434;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-
-          proxy_connect_timeout 10s;
-          proxy_send_timeout 10s;
-          proxy_read_timeout 10s;
-
-          error_log /dev/stdout debug;
-          access_log /dev/stdout;
-        }
-      }
-    }
 ---
 # 5. Update the Deployment to mount the new TLS secret
 apiVersion: apps/v1
@@ -135,3 +151,17 @@ spec:
         - name: htpasswd
           secret:
             secretName: nginx-htpasswd
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-reverse-proxy
+  namespace: ingress-nginx
+spec:
+  selector:
+    app: nginx-reverse-proxy
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+
