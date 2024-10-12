@@ -1,0 +1,80 @@
+To manually add a DNS entry within your k3s cluster so that `cabezon.yonor.me` resolves to `192.168.1.126`, you can use CoreDNS, which is the default DNS server in Kubernetes. Here's how you can do it:
+
+1. First, let's check the current CoreDNS configuration:
+
+   ```
+   kubectl get configmap coredns -n kube-system -o yaml
+   ```
+
+2. You'll see a ConfigMap with a `Corefile` key. We need to edit this to add our custom DNS entry. Let's edit the ConfigMap:
+
+   ```
+   kubectl edit configmap coredns -n kube-system
+   ```
+
+3. In the editor, locate the `Corefile` section. It might look something like this:
+
+   ```yaml
+   Corefile: |
+     .:53 {
+         errors
+         health
+         ready
+         kubernetes cluster.local in-addr.arpa ip6.arpa {
+           pods insecure
+           fallthrough in-addr.arpa ip6.arpa
+         }
+         hosts {
+           fallthrough
+         }
+         prometheus :9153
+         forward . /etc/resolv.conf
+         cache 30
+         loop
+         reload
+         loadbalance
+     }
+   ```
+
+4. We'll add our custom entry to the `hosts` plugin. Modify the `hosts` section to look like this:
+
+   ```yaml
+   hosts {
+     192.168.1.126 cabezon.yonor.me
+     fallthrough
+   }
+   ```
+
+5. Save and exit the editor.
+
+6. CoreDNS should automatically reload the configuration, but to be sure, you can restart the CoreDNS pods:
+
+   ```
+   kubectl rollout restart deployment coredns -n kube-system
+   ```
+
+7. Verify that the changes have been applied:
+
+   ```
+   kubectl get configmap coredns -n kube-system -o yaml
+   ```
+
+8. To test the DNS resolution within the cluster, you can run a temporary pod:
+
+   ```
+   kubectl run -it --rm --restart=Never busybox --image=busybox:1.28 -- nslookup cabezon.yonor.me
+   ```
+
+   This should return the IP address 192.168.1.126 for cabezon.yonor.me.
+
+Please note that this change will only affect DNS resolution within your k3s cluster. It won't change how external systems resolve the domain. 
+
+Also, be aware that this manual DNS entry might interfere with cert-manager's ability to solve the HTTP-01 challenge if cert-manager is running inside the cluster and using the cluster's DNS. The HTTP-01 challenge needs to be solved from the perspective of the external ACME server (Let's Encrypt), not from within the cluster.
+
+If you're still having issues with the ACME challenge after this, you might need to consider:
+
+1. Ensuring that external DNS for cabezon.yonor.me points to your cluster's public IP.
+2. Configuring your router/firewall to forward incoming traffic on port 80 to 192.168.1.126.
+3. Verifying that the Ingress controller is properly set up to handle incoming traffic.
+
+Would you like me to explain any part of this process in more detail?
