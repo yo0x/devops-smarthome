@@ -7,14 +7,15 @@
 # ---
 # Apply the cert-manager manifest (example version, check for the latest)
 # kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.1/cert-manager.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/cloud/deploy.yaml
 
----
-# 2. Create an Issuer or ClusterIssuer
+# ---
+# # 2. Create an Issuer or ClusterIssuer
 # apiVersion: cert-manager.io/v1
 # kind: ClusterIssuer
 # metadata:
 #   name: letsencrypt-prod
-#   namespace: ingress-nginx
+#   namespace: open-webui
 # spec:
 #   acme:
 #     server: https://acme-v02.api.letsencrypt.org/directory
@@ -25,17 +26,39 @@
 #       - http01:
 #           ingress:
 #             class: nginx
-
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: external-ws-service
+#   namespace: open-webui
+# spec:
+#   type: ClusterIP
+#   ports:
+#     - port: 11434
+#       targetPort: 11434
+#   externalIPs:
+#     - 192.168.1.213
+# ---
+# apiVersion: v1
+# kind: Endpoints
+# metadata:
+#   name: external-ws-service
+#   namespace: open-webui
+# subsets:
+#   - addresses:
+#       - ip: 192.168.1.213
+#     ports:
+#       - port: 11434
 ---
 # 3. Update your Ingress resource to use cert-manager
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-reverse-proxy
-  namespace: ingress-nginx
+  name: ai-ingress
+  namespace: open-webui
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls:
     - hosts:
@@ -50,112 +73,152 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: nginx-reverse-proxy
+                name: open-webui
                 port:
                   number: 80
 ---
-# 4. Update the NGINX ConfigMap to use the new secret
-apiVersion: v1
-kind: ConfigMap
+# 3. Update your Ingress resource to use cert-manager
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: nginx-config
-  namespace: ingress-nginx
-data:
-  nginx.conf: |
-    http {
-        upstream open-webui {
-            server open-webui.open-webui.svc.cluster.local:80;
-        }
-        upstream ollama {
-            server 192.168.1.213:11434;
-        }
-
-        server {
-            listen 80;
-            listen [::]:80;
-            server_name cabezon.yonor.me;
-
-            # Root location block - proxy all requests to the AI service
-            location / {
-                proxy_pass http://open-webui;
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-            }
-
-            # Ollama service
-            location /ollama/ {
-                proxy_pass http://ollama/;
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-            }
-
-            # Handle WebSocket connections for the AI service
-            location /ws {
-                proxy_pass http://open-webui;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "upgrade";
-                proxy_set_header Host $host;
-            }
-        }
-    }
-
-    events {
-        worker_connections 1024;
-    }
----
-# 5. Update the Deployment to mount the new TLS secret
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-reverse-proxy
-  namespace: ingress-nginx
+  name: ha-ingress
+  namespace: ha-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx-reverse-proxy
-  template:
-    metadata:
-      labels:
-        app: nginx-reverse-proxy
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:latest
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - name: nginx-config
-              mountPath: /etc/nginx/nginx.conf
-              subPath: nginx.conf
-            - name: htpasswd
-              mountPath: /etc/nginx/.htpasswd
-              subPath: .htpasswd
-      volumes:
-        - name: nginx-config
-          configMap:
-            name: nginx-config
-        - name: nginx-tls
-          secret:
-            secretName: nginx-tls
-        - name: htpasswd
-          secret:
-            secretName: nginx-htpasswd
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-reverse-proxy
-  namespace: ingress-nginx
-spec:
-  selector:
-    app: nginx-reverse-proxy
-  ports:
-    - port: 80
-      targetPort: 80
-  type: ClusterIP
+  tls:
+    - hosts:
+        - ha.yonor.me
+      secretName: nginx-tls
+  ingressClassName: nginx
+  rules:
+    - host: ha.yonor.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-assistant
+                port:
+                  number: 8080
+
+    # - host: ha.yonor.me
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: home-assistant
+    #             port:
+    #               number: 8123
+              # Change the following line to use an ExternalName service
+
+
+# ---
+# # 4. Update the NGINX ConfigMap to use the new secret
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: nginx-config
+#   namespace: ingress-nginx
+# data:
+#   nginx.conf: |
+#     http {
+#         upstream open-webui {
+#             server open-webui.open-webui.svc.cluster.local:80;
+#         }
+#         upstream ollama {
+#             server 192.168.1.213:11434;
+#         }
+
+#         server {
+#             listen 80;
+#             listen [::]:80;
+#             server_name cabezon.yonor.me;
+
+#             # Root location block - proxy all requests to the AI service
+#             location / {
+#                 proxy_pass http://open-webui;
+#                 proxy_set_header Host $host;
+#                 proxy_set_header X-Real-IP $remote_addr;
+#                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#                 proxy_set_header X-Forwarded-Proto $scheme;
+#             }
+
+#             # Ollama service
+#             location /ollama/ {
+#                 proxy_pass http://ollama/;
+#                 proxy_set_header Host $host;
+#                 proxy_set_header X-Real-IP $remote_addr;
+#                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#                 proxy_set_header X-Forwarded-Proto $scheme;
+#             }
+
+#             # Handle WebSocket connections for the AI service
+#             location /ws {
+#                 proxy_pass http://open-webui;
+#                 proxy_http_version 1.1;
+#                 proxy_set_header Upgrade $http_upgrade;
+#                 proxy_set_header Connection "upgrade";
+#                 proxy_set_header Host $host;
+#             }
+#         }
+#     }
+
+#     events {
+#         worker_connections 1024;
+#     }
+# ---
+# # 5. Update the Deployment to mount the new TLS secret
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx-reverse-proxy
+#   namespace: ingress-nginx
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: nginx-reverse-proxy
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx-reverse-proxy
+#     spec:
+#       containers:
+#         - name: nginx
+#           image: nginx:latest
+#           ports:
+#             - containerPort: 80
+#           volumeMounts:
+#             - name: nginx-config
+#               mountPath: /etc/nginx/nginx.conf
+#               subPath: nginx.conf
+#             - name: htpasswd
+#               mountPath: /etc/nginx/.htpasswd
+#               subPath: .htpasswd
+#       volumes:
+#         - name: nginx-config
+#           configMap:
+#             name: nginx-config
+#         - name: nginx-tls
+#           secret:
+#             secretName: nginx-tls
+#         - name: htpasswd
+#           secret:
+#             secretName: nginx-htpasswd
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: nginx-reverse-proxy
+#   namespace: ingress-nginx
+# spec:
+#   selector:
+#     app: nginx-reverse-proxy
+#   ports:
+#     - port: 80
+#       targetPort: 80
+#   type: ClusterIP
