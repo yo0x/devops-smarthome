@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://helm.openwebui.com/
-    targetRevision: HEAD
+    targetRevision: 3.3.2
     chart: open-webui
     helm:
       valueFiles:
