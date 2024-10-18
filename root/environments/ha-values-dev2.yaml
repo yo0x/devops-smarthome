@@ -111,24 +111,17 @@ ingress:
   enabled: true
   className: "nginx"
   annotations:
-    # {}
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   hosts:
     - host: ha.yonor.me
       paths:
         - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: home-assistant
-              port:
-                number: 8080
+          pathType: ImplementationSpecific
   tls: 
-    - hosts:
-        - ha.yonor.me
-      secretName: nginx-tls
-  ingressClassName: nginx
+   - secretName: nginx-tls
+     hosts:
+       - ha.yonor.me
 
   #  - secretName: chart-example-tls
   #    hosts:
