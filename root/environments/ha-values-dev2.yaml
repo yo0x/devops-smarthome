@@ -105,22 +105,31 @@ service:
   port: 8080
   # Annotations to add to the service
   annotations: {}
-
 # Ingress settings
 ingress:
   # Enable ingress for home assistant
   enabled: true
-  className: ""
+  className: "nginx"
   annotations:
     # {}
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   hosts:
-    - host: homeassistant.example.com
+    - host: ha.yonor.me
       paths:
         - path: /
-          pathType: ImplementationSpecific
-  tls: []
+          pathType: Prefix
+          backend:
+            service:
+              name: home-assistant
+              port:
+                number: 8080
+  tls: 
+    - hosts:
+        - ha.yonor.me
+      secretName: nginx-tls
+  ingressClassName: nginx
+
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
