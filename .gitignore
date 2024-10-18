@@ -341,3 +341,4 @@ proxy-home/ca.b64
 proxy-home/ca.crt
 proxy-home/patch.json
 proxy-home/.$proxy.drawio.bkp
+argocd.exe
