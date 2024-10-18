@@ -76,32 +76,32 @@ spec:
                 name: open-webui
                 port:
                   number: 80
----
-# 3. Update your Ingress resource to use cert-manager
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ha-ingress
-  namespace: ha-dev
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  tls:
-    - hosts:
-        - ha.yonor.me
-      secretName: nginx-tls
-  ingressClassName: nginx
-  rules:
-    - host: ha.yonor.me
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: home-assistant
-                port:
-                  number: 8080
+# ---
+# # 3. Update your Ingress resource to use cert-manager
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ha-ingress
+#   namespace: ha-dev
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+# spec:
+#   tls:
+#     - hosts:
+#         - ha.yonor.me
+#       secretName: nginx-tls
+#   ingressClassName: nginx
+#   rules:
+#     - host: ha.yonor.me
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: home-assistant
+#                 port:
+#                   number: 8080
 
     # - host: ha.yonor.me
     #   http:

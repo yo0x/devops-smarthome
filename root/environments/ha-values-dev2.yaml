@@ -126,7 +126,7 @@ hosts:
 tls: 
   - hosts:
       - ha.yonor.me
-    secretName: home-assistant-tls
+    secretName: nginx-tls
 
   #  - secretName: chart-example-tls
   #    hosts:
