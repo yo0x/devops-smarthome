@@ -4,7 +4,9 @@ persistence:
   existingClaim: docker-registry-pv-claim
   size: 20Gi
   storageClass: nfs-client
+
 replicaCount: 1
+
 secrets:
   existingSecretName: creds-docker
   htpasswdKey: htpasswd
@@ -15,10 +17,8 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    # Remove the following line if you're using cert-manager
-    # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: reg.yonor.me  # Replace with your actual domain
+    - host: reg.yonor.me
       paths:
         - path: /
           pathType: Prefix
