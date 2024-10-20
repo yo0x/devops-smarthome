@@ -1,0 +1,12 @@
+sd - render images using supplied prompt
+txt2img - render images using supplied prompt
+upscale - upscale the next picture
+cancel - cancel ongoing request
+models - list available models
+samplers - list available samplers
+embeddings - list available embeddings
+loras - list available LoRAs
+upscalers - list available upscalers
+vaes - list available VAEs
+smi - get the output of nvidia-smi
+help - print help

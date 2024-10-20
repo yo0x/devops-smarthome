@@ -345,3 +345,4 @@ argocd.exe
 kubectl
 chat-ops/telegram/build/botatobot
 chat-ops/telegram/.env
+chat-ops/telegram/.env.example

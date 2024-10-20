@@ -1,106 +1,98 @@
-# Botatobot 🥔
+# Stable Diffusion Telegram Bot
 
-Yet another Telegram bot, this one generates stable diffusion images on request.
+This is a Telegram Bot frontend for rendering images with
+[Stable Diffusion AUTOMATIC1111 API](https://github.com/AUTOMATIC1111/stable-diffusion-webui/).
 
-![sample image](https://user-images.githubusercontent.com/9478529/216794269-bedc1fa7-3a46-41aa-8ecd-c31175544d44.jpg)
+<p align="center"><img src="resources/demo.gif?raw=true"/></p>
 
-## Yes, but how?
+The bot displays the progress and further information during processing by
+responding to the message with the prompt. Requests are queued, only one gets
+processed at a time.
 
-In a nutshell, Botatobot listen for users requests for images and push them in a (bounded) worker queue, the queue gets processed by a server running a Stable Diffusion inside a  either locally or as a service, like replicate.com
+The bot uses the
+[Telegram Bot API](https://github.com/go-telegram-bot-api/telegram-bot-api).
+Rendered images are not saved on disk.
 
-## Pre-requisites
+## Compiling
 
-To run Stable Diffusion, you have two options:
+You'll need Go installed on your computer. Install a recent package of [Go](https://go.dev).
+Then run:
 
-- Locally, using a [Cog Container](https://github.com/replicate/cog).
-- Remotely, using [Replicate.com](https://www.replicate.com).
-
-To run the Telegram bot server you need [Go](https://go.dev/doc/install) and a [Telegram](https://www.telegram.com) account.
-
-### Host a Cog Stable Diffusion server on your machine 🐳
-
-First you need to [install Cog](https://github.com/replicate/cog?tab=readme-ov-file#install), [Docker](https://docs.docker.com/get-docker/) and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
-
-Then clone the pre-configured [cog-stable-diffusion](https://github.com/replicate/cog-stable-diffusion) repository. Follow their instructions in the README to ensure the model is running correctly.
-
-In particular you need to download the weights first
-
-```bash
-cog run script/download-weights
+```shell
+go install github.com/kanootoko/stable-diffusion-telegram-bot/cmd/stable-diffusion-telegram-bot@latest
 ```
 
-build your container with
+This will typically install `stable-diffusion-telegram-bot` into `~/go/bin`.
 
-```bash
-cog build -t stable-diffusion
+Or just enter `go build` in the cloned Git source repo directory.
+
+## Prerequisites
+
+Create a Telegram bot using [BotFather](https://t.me/BotFather) and get the
+bot's `token`.
+
+## Running
+
+You can get the available command line arguments with `-h`.
+Mandatory arguments are:
+
+- `-bot-token`: set this to your Telegram bot's `token`
+- `-sd-api`: set the address of running Stable Diffusion AUTOMATIC1111 API
+
+Set your Telegram user ID as an admin with the `-admin-user-ids` argument.
+Admins will get a message when the bot starts.
+
+Other user/group IDs can be set with the `-allowed-user-ids` and
+`-allowed-group-ids` arguments. IDs should be separated by commas.
+
+You can get Telegram user IDs by writing a message to the bot and checking
+the app's log, as it logs all incoming messages.
+
+All command line arguments can be set through OS environment variables.
+Note that using a command line argument overwrites a setting by the environment
+variable. Available OS environment variables are listed in [.env example file](.env.example).
+
+## Bot operation
+
+Supported commands listed in [commands.txt file](commands.txt). You can also set 
+commands suggestions from Telegram using BotFather by feeding it with
+[commands file](./docs/resources/commands.txt) content.
+
+When sending message in private chat, any message which is not a command will be treated as
+a generation request.
+
+### Setting render parameters
+
+You can use the following `-attr val` assignments at the end of the prompt:
+
+- `-seed/s` - set seed
+- `-width/w` - set output image width
+- `-height/h` - set output image height
+- `-steps/t` - set the number of steps
+- `-cnt/o` - set count of output images
+- `-batch/b` - set batch size of output images
+- `-png` - upload PNGs instead of JPEGs
+- `-cfg/c` - set CFG scale
+- `-sampler/r` - set sampler, get valid values with `/samplers`
+- `-model/m` - set model, get valid values with `/models`
+- `-upscale/u` - upscale output image with ratio
+- `-upscaler` - set upscaler method, get valid values with `/upscalers`
+- `-hr` - enable highres mode and set upscale ratio
+- `-hr-denoisestrength/hrd` - set highres mode denoise strength
+- `-hr-upscaler/hru` - set highres mode upscaler, get valid values with `/upscalers`
+- `-hr-steps/hrt` - set the number of highres mode second pass steps
+
+Example prompt with attributes: `laughing santa with beer -s 1 -o 1`
+
+Enter negative prompts in the second line of your message (use Shift+Enter). Example:
+```
+laughing santa with beer
+tree -s 1 -o 1
 ```
 
-and run it with
+If you need to use spaces in sampler and upscaler names, then enclose them
+in double quotes.
 
-```bash
-docker run -d -p 5001:5000 --gpus all stable-diffusion
-```
-
-This will download, create and run a container with the stable diffusion image running on port 5001, eg.`http://127.0.0.1:5001/predictions`
-
-### Getting a Replicate.com token and model version
-
-Go to [Replicate.com api-tokens](https://replicate.com/signin?next=/account/api-tokens) and generate your token, keep it safe.
-
-You will also need to choose a Stable Diffusion model version. You can find the available versions here <https://replicate.com/stability-ai/stable-diffusion/versions>
-
-### Getting a Telegram bot token 🤖
-
-1. Talk to [@BotFather](https://t.me/BotFather) on Telegram
-2. Send `/newbot` to create a new bot
-3. Follow the instructions to set a name and username for your bot
-4. Copy the token that BotFather gives you
-
-The token looks like this: `123456789:ABCDEF1234567890ABCDEF1234567890ABC`
-
-### Configure and run Botatobot 🥔
-
-#### Configure
-
-##### If running Stable Diffusion locally
-
-Set the following environment variables or create a `.env` file with the following content:
-
-```text
-TELEGRAMBOT_TOKEN=123456789:ABCDEF1234567890ABCDEF1234567890ABC
-MODEL_URL=http://127.0.0.1:5001/predictions
-```
-
-The `BOT_TOKEN` you got from the [@BotFather](https://t.me/BotFather), and `MODEL_URL` indicates where the Cog Stable Diffusion is running, most likely a docker container in your local machine.
-
-There is an optional variable `OUTPUT_PATH` that indicates the path where the generated images will be saved.
-
-##### If using replicate.com
-
-You need the Telegram and Replicate tokens and the Stable Diffusion model version, create an `.env` file or make them available in the environment.
-
-```text
-BOT_TOKEN=123456789:ABCDEF1234567890ABCDEF1234567890ABC
-REPLICATE_TOKEN=1234567890abdfeghijklmnopqrstuvwxyz
-REPLICATE_VERSION=a9758cbfbd5f3c2094457d996681af52552901775aa2d6dd0b17fd15df959bef
-```
-
-The `BOT_TOKEN` you got from the [@BotFather](https://t.me/BotFather),`REPLICATE_TOKEN` and `REPLICATE_VERSION` you get from replicate.com.
-
-Additionally you can set `REPLICATE_URL` to a custom url, and `OUTPUT_PATH` to indicate the path where the generated images will be saved.
-
-#### Build and run
-
-Build with`go build -o build/botatobot cmd/botatobot/main.go` and then run `./build/botatobot`
-
-## Usage
-
-Tell the bot `/help` to let him self explain.
-
-## Notes
-
-In some scenarios, like deploying to Heroku or other platforms you need a http rest health endpoint. Botatobot includes such functionality, to activate it include a `LOCAL_PORT` variable.
-
-## Acknowledgments
-
-Botatobot uses the excellent [go-telegram](https://pkg.go.dev/github.com/go-telegram/bot) package to interact with the Telegram API. Go check it out!
+The default resolution is 512x512. If the currently used model's name contains "xl" as
+case-insensitive substring then the bot increases the resolution to the other one
+(default is 1024x1024).
