@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://helm.twun.io/
-    targetRevision: 2.2.3
+    repoURL: https://phntom.kix.co.il/charts/
+    targetRevision: 1.10.0
     chart: docker-registry
     helm:
       valueFiles:

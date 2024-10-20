@@ -1,26 +1,70 @@
-persistence:
-  deleteEnabled: true
-  enabled: true
-  existingClaim: docker-registry-pv-claim
-  size: 20Gi
-  storageClass: nfs-client
-
 replicaCount: 1
 
+image:
+  pullPolicy: Always
+
+persistence:
+  enabled: true
+  accessMode: 'ReadWriteOnce'
+  size: 20Gi
+  storageClass: nfs-client
+  existingClaim: docker-registry-pv-claim
+
 secrets:
-  existingSecretName: creds-docker
-  htpasswdKey: htpasswd
+  htpasswd: ""
+  haSharedSecret: "creds-docker"
+
+  # Use this if you're storing the htpasswd in a separate secret
+  # haSharedSecret: ""
+
+# If you're using an existing secret, you might need to adjust the configData section
+# to reference the correct secret keys
 
 ingress:
   enabled: true
-  className: "nginx"
+  path: /
+  hosts:
+    - reg.yonor.me
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - reg.yonor.me
-  path: /
   tls:
-    - hosts:
+    - secretName: "nginx-tls"
+      hosts:
         - reg.yonor.me
-      secretName: "nginx-tls"
+
+service:
+  port: 5000
+
+# If you need to add any custom configuration, you can do so here
+configData:
+  version: 0.1
+  log:
+    fields:
+      service: registry
+  storage:
+    cache:
+      blobdescriptor: inmemory
+  http:
+    addr: :5000
+    headers:
+      X-Content-Type-Options: [nosniff]
+  health:
+    storagedriver:
+      enabled: true
+      interval: 10s
+      threshold: 3
+
+# If you need to specify resource limits or requests
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+securityContext:
+  enabled: true
+  runAsUser: 1000
+  fsGroup: 1000
