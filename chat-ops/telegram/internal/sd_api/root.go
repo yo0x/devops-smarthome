@@ -146,6 +146,89 @@ func (a *SdAPIType) Render(ctx context.Context, p reqparams.ReqParams, _ []byte)
 	return imgs, nil
 }
 
+type img2imgReq struct {
+	EnableHR          bool                   `json:"enable_hr"`
+	DenoisingStrength float32                `json:"denoising_strength"`
+	HRScale           float32                `json:"hr_scale"`
+	HRUpscaler        string                 `json:"hr_upscaler"`
+	HRSecondPassSteps int                    `json:"hr_second_pass_steps"`
+	HRSamplerName     string                 `json:"hr_sampler_name"`
+	HRPrompt          string                 `json:"hr_prompt"`
+	HRNegativePrompt  string                 `json:"hr_negative_prompt"`
+	Prompt            string                 `json:"prompt"`
+	Seed              uint32                 `json:"seed"`
+	SamplerName       string                 `json:"sampler_name"`
+	BatchSize         int                    `json:"batch_size"`
+	NIter             int                    `json:"n_iter"`
+	Steps             int                    `json:"steps"`
+	CFGScale          float64                `json:"cfg_scale"`
+	Width             int                    `json:"width"`
+	Height            int                    `json:"height"`
+	NegativePrompt    string                 `json:"negative_prompt"`
+	OverrideSettings  map[string]interface{} `json:"override_settings"`
+	SendImages        bool                   `json:"send_images"`
+}
+
+func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, _ []byte) (imgs [][]byte, err error) {
+	params := p.(reqparams.ReqParamsImg2Img)
+
+	n_iter := int(math.Ceil(float64(params.NumOutputs) / float64(params.BatchSize)))
+
+	postData, err := json.Marshal(img2imgReq{
+		EnableHR:          params.HR.Scale > 0,
+		DenoisingStrength: params.HR.DenoisingStrength,
+		HRScale:           params.HR.Scale,
+		HRUpscaler:        params.HR.Upscaler,
+		HRSecondPassSteps: params.HR.SecondPassSteps,
+		HRSamplerName:     params.SamplerName,
+		HRPrompt:          params.Prompt,
+		HRNegativePrompt:  params.NegativePrompt,
+		Prompt:            params.Prompt,
+		Seed:              params.Seed,
+		SamplerName:       params.SamplerName,
+		BatchSize:         params.BatchSize,
+		NIter:             n_iter,
+		Steps:             params.Steps,
+		CFGScale:          params.CFGScale,
+		Width:             params.Width,
+		Height:            params.Height,
+		NegativePrompt:    params.NegativePrompt,
+		OverrideSettings: map[string]interface{}{
+			"sd_model_checkpoint": params.ModelName,
+		},
+		SendImages: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.req(ctx, "/img2img", "", postData)
+	if err != nil {
+		return nil, err
+	}
+
+	var renderResp struct {
+		Images []string `json:"images"`
+	}
+	err = json.Unmarshal([]byte(res), &renderResp)
+	if err != nil {
+		return nil, err
+	}
+	if len(renderResp.Images) == 0 {
+		return nil, fmt.Errorf("unknown error")
+	}
+
+	for _, img := range renderResp.Images {
+		var unbased []byte
+		if unbased, err = base64.StdEncoding.DecodeString(img); err != nil {
+			return nil, fmt.Errorf("image base64 decode error")
+		}
+		imgs = append(imgs, unbased)
+	}
+
+	return imgs, nil
+}
+
 type UpscaleReq struct {
 	ResizeMode                     int     `json:"resize_mode,omitempty"`
 	ShowExtrasResults              bool    `json:"show_extras_results,omitempty"`

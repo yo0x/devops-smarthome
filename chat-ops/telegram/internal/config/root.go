@@ -90,6 +90,7 @@ func (p *AppParams) Init() error {
 	flag.IntVar(&p.Defaults.HeightSDXL, "default-height-sdxl", defaults.HeightSDXL, "default image height for SDXL models")
 	flag.IntVar(&p.Defaults.StepsSDXL, "default-cnt-sdxl", defaults.StepsSDXL, "default generation steps count for SDXL models")
 	flag.Float64Var(&p.Defaults.CFGScale, "default-cfg-scale", defaults.CFGScale, "default CFG scale")
+	flag.StringVar(&p.Defaults.Model, "default-model", defaults.Model, "default model name")
 	flag.Parse()
 
 	if p.BotToken == "" {
@@ -157,6 +158,9 @@ type defaultsFromEnv struct {
 	AdminUserIDs           string
 	AllowedGroupIDs        string
 	ProcessTimeout         time.Duration
+	KukaPrompt             string
+	KukaNegativePrompt     string
+	KukaModel              string
 }
 
 func getDefaultsFromEnv() (defaults defaultsFromEnv) {
@@ -173,7 +177,15 @@ func getDefaultsFromEnv() (defaults defaultsFromEnv) {
 	if value, isSet := os.LookupEnv("DEFAULT_SAMPLER"); isSet {
 		defaults.Sampler = value
 	}
-
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_PROMPT"); isSet {
+		defaults.KukaPrompt = value
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_NEGATIVE_PROMPT"); isSet {
+		defaults.KukaNegativePrompt = value
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_MODEL"); isSet {
+		defaults.KukaModel = value
+	}
 	if value, isSet := os.LookupEnv("DEFAULT_WIDTH"); isSet {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			defaults.Width = intValue

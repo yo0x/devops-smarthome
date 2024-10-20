@@ -4,6 +4,61 @@ import (
 	"fmt"
 )
 
+type ReqParamsImg2Img struct {
+	HR                 ReqParamsRenderHR
+	OriginalPromptText string
+	Prompt             string
+	NegativePrompt     string
+	Seed               uint32
+	Width              int
+	Height             int
+	BatchSize          int
+	Steps              int
+	NumOutputs         int
+	OutputPNG          bool
+	CFGScale           float64
+	SamplerName        string
+	ModelName          string
+}
+
+func (r ReqParamsImg2Img) String() string {
+	var numOutputs string
+	if r.NumOutputs > 1 {
+		numOutputs = fmt.Sprintf("x%d", r.NumOutputs)
+	}
+
+	var outFormatText string
+	if r.OutputPNG {
+		outFormatText = "/PNG"
+	}
+
+	res := fmt.Sprintf("🌱<code>%d</code> 👟%d 🕹%.1f 🖼%dx%d%s%s 🔭%s 🧩%s",
+		r.Seed,
+		r.Steps,
+		r.CFGScale,
+		r.Width,
+		r.Height,
+		numOutputs,
+		outFormatText,
+		r.SamplerName,
+		r.ModelName,
+	)
+
+	if r.NegativePrompt != "" {
+		negText := r.NegativePrompt
+		if len(negText) > 10 {
+			negText = negText[:10] + "..."
+		}
+		res = "📍" + negText + " " + res
+	}
+
+	return res
+}
+
+func (r ReqParamsImg2Img) OriginalPrompt() string {
+	return r.OriginalPromptText
+}
+
 type ReqParamsUpscale struct {
 	OriginalPromptText string
 	Scale              float32
@@ -48,6 +103,12 @@ type ReqParamsRender struct {
 	Upscale ReqParamsUpscale
 
 	HR ReqParamsRenderHR
+
+	EnableHR          bool
+	DenoisingStrength float32
+	HRScale           float32
+	HRUpscaler        string
+	HRSecondPassSteps int
 }
 
 func (r ReqParamsRender) String() string {

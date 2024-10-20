@@ -33,6 +33,7 @@ const HelpCommandStr = "🤖 Stable Diffusion Telegram Bot\n\n" +
 	"/vaes - list available VAEs\n" +
 	"/smi - get the output of nvidia-smi\n" +
 	"/help - show this help\n\n" +
+	"/kuka - img2img with prompt with teaks and model kuka\n" +
 
 	"Available render parameters at the end of the prompt:\n\n" +
 

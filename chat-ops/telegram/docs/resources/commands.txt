@@ -10,3 +10,4 @@ upscalers - list available upscalers
 vaes - list available VAEs
 smi - get the output of nvidia-smi
 help - print help
+kuka - get the output of kuka

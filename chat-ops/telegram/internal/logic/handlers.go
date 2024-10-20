@@ -45,6 +45,7 @@ func (c *CmdHandler) AddHandlers(
 	bot.RegisterPrefixHandler("/cancel", c.adaptHandler(c.cancel))
 	bot.RegisterPrefixHandler("/smi", c.adaptHandler(c.smi))
 	bot.RegisterPrefixHandler("/help", c.adaptHandler(c.help))
+	bot.RegisterPrefixHandler("/kuka", c.adaptHandler(c.img2img))
 
 	bot.RegisterPrefixHandler("/models", c.adaptHandler(c.listModels))
 	bot.RegisterPrefixHandler("/samplers", c.adaptHandler(c.listSamplers))
@@ -108,7 +109,78 @@ type CmdHandler struct {
 	bot      *telegram.SDBot
 	reqQueue *reqqueue.ReqQueue
 	defaults config.GenerationDefaults
-	us       userservice.UserService
+	//defaultEnv config.DefaultsFromEnv
+	us userservice.UserService
+}
+
+func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
+	text := strings.TrimSpace(removeBotName(msg.Text))
+	reqParams := reqparams.ReqParamsRender{
+		OriginalPromptText: text,
+		Seed:               rand.Uint32(),
+		Width:              c.defaults.Width,
+		Height:             c.defaults.Height,
+		Steps:              c.defaults.Steps,
+		NumOutputs:         c.defaults.Cnt,
+		CFGScale:           c.defaults.CFGScale,
+		SamplerName:        c.defaults.Sampler,
+		ModelName:          "KUKA",
+		Upscale: reqparams.ReqParamsUpscale{
+			Upscaler: "LDSR",
+		},
+		HR: reqparams.ReqParamsRenderHR{
+			DenoisingStrength: 0.4,
+			Upscaler:          "R-ESRGAN 4x+",
+			SecondPassSteps:   15,
+		},
+	}
+
+	var paramsLine *string
+	lines := strings.Split(text, "\n")
+	if len(lines) > 1 {
+		reqParams.Prompt = lines[0]
+		reqParams.NegativePrompt = strings.Join(lines[1:], " ")
+		paramsLine = &reqParams.NegativePrompt
+	} else {
+		reqParams.Prompt = text
+		paramsLine = &reqParams.Prompt
+	}
+	firstCmdCharAt, err := ReqParamsParse(ctx, c.sdApi, c.defaults, *paramsLine, &reqParams)
+	if err != nil {
+		c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": can't parse render params: "+err.Error())
+		return
+	}
+	if firstCmdCharAt >= 0 { // Commands found? Removing them from the line.
+		if firstCmdCharAt == 0 {
+			c.bot.SendReplyToMessage(ctx, msg, consts.EmptyRequestErrorStr)
+			return
+		}
+		*paramsLine = (*paramsLine)[:firstCmdCharAt]
+		if len(lines) > 1 {
+			firstCmdCharAt += len(lines[0]) + 1
+		}
+		reqParams.OriginalPromptText = fmt.Sprintf("%s\nParameters: %s", reqParams.OriginalPromptText[:firstCmdCharAt], reqParams.OriginalPromptText[firstCmdCharAt:])
+	}
+
+	reqParams.Prompt = strings.TrimSpace(reqParams.Prompt)
+	reqParams.NegativePrompt = strings.TrimSpace(reqParams.NegativePrompt)
+
+	if reqParams.Prompt == "" {
+		fmt.Println("  missing prompt")
+		c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": missing prompt")
+		return
+	}
+
+	if reqParams.HR.Scale > 0 || reqParams.Upscale.Scale > 0 {
+		reqParams.NumOutputs = 1
+	}
+
+	req := reqqueue.ReqQueueReq{
+		Type:    reqqueue.ReqTypeRender,
+		Message: msg,
+		Params:  reqParams,
+	}
+	c.reqQueue.Add(req)
 }
 
 func (c *CmdHandler) txt2img(ctx context.Context, msg *models.Message) {
