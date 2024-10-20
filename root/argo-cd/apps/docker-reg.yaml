@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://helm.twun.io/
-    targetRevision: 2.2.3
+    targetRevision: 2.8.1
     chart: twuni/docker-registry
     helm:
       valueFiles:
