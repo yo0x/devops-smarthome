@@ -17,4 +17,6 @@
     loadbalance
 }
 ---
+kubectl edit configmap coredns -n kube-system
+
 kubectl rollout restart deployment coredns -n kube-system
