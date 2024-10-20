@@ -7,8 +7,8 @@ spec:
   project: default
   source:
     repoURL: https://helm.twun.io/
-    targetRevision: 2.8.1
-    chart: twuni/docker-registry
+    targetRevision: 2.2.3
+    chart: docker-registry
     helm:
       valueFiles:
       - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/docker-reg-vals.yaml
