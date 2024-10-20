@@ -343,3 +343,5 @@ proxy-home/patch.json
 proxy-home/.$proxy.drawio.bkp
 argocd.exe
 kubectl
+chat-ops/telegram/build/botatobot
+chat-ops/telegram/.env
