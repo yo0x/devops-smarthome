@@ -346,3 +346,4 @@ kubectl
 chat-ops/telegram/build/botatobot
 chat-ops/telegram/.env
 chat-ops/telegram/.env.example
+chat-ops/telegram/stable-diffusion-telegram-bot.exe
