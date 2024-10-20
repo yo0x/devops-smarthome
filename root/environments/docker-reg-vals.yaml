@@ -22,7 +22,5 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: 
-    - hosts:
-        - reg.yonor.me  # Replace with your actual domain
-      secretName: nginx-tls
+  tls: true
+  existingSecret: "nginx-tls"
