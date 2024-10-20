@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docker-reg
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://helm.twun.io/
+    targetRevision: 2.2.3
+    chart: twuni/docker-registry
+    helm:
+      valueFiles:
+      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/docker-reg-vals.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docker-reg
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
