@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}\\chat-ops\\telegram\\cmd\\stable-diffusion-telegram-bot",
+            "args": [
+                "--check-go-version=false"
+            ]
+        },
+        {
             "name": "Launch test function",
             "type": "go",
             "request": "launch",
@@ -23,11 +33,11 @@
             "program": "${file}"
         },
         {
-            "name": "Launch Package",
+            "name": "Launch2 Package",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}"
+            "program": "${workspaceFolder}/chat-ops/telegram"
         },
        
         {

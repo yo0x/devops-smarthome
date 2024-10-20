@@ -124,7 +124,7 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		NumOutputs:         c.defaults.Cnt,
 		CFGScale:           c.defaults.CFGScale,
 		SamplerName:        c.defaults.Sampler,
-		ModelName:          "KUKA",
+		ModelName:          "sd-v1-5-inpainting",
 		Upscale: reqparams.ReqParamsUpscale{
 			Upscaler: "LDSR",
 		},
