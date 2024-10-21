@@ -77,14 +77,20 @@ func removeBotName(s string) string {
 
 func (c *CmdHandler) adaptHandler(innerHandler func(context.Context, *models.Message)) bot.HandlerFunc {
 	return func(ctx context.Context, _ *bot.Bot, update *models.Update) {
-		if update.Message == nil { // edited message is ignored
+		if update.Message == nil {
 			return
 		}
 		fmt.Print("msg from ", update.Message.From.Username, "#", update.Message.From.ID, ": ", update.Message.Text, "\n")
-		if update.Message.Chat.ID < 0 { // From group chat?
+		if update.Message.Chat.ID < 0 {
 			fmt.Print("  msg from group #", update.Message.Chat.ID)
 		}
 		fmt.Println()
+
+		// Add this condition to check for exact command match
+		if update.Message.Text == "/kuka" {
+			innerHandler(ctx, update.Message)
+			return
+		}
 
 		if update.Message.ReplyToMessage != nil &&
 			update.Message.Text != "" &&
@@ -149,7 +155,9 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		Params:  reqParams,
 	}
 
-	c.bot.SendReplyToMessage(ctx, msg, consts.ImageReqStr)
+	// Remove this line:
+	// c.bot.SendReplyToMessage(ctx, msg, consts.ImageReqStr)
+
 	c.reqQueue.Add(req)
 }
 
