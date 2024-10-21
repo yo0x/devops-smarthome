@@ -116,7 +116,7 @@ type CmdHandler struct {
 func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 	text := strings.TrimSpace(removeBotName(msg.Text))
 	reqParams := reqparams.ReqParamsRender{
-		OriginalPromptText: text,
+		OriginalPromptText: c.defaults.KukaPrompt,
 		Seed:               rand.Uint32(),
 		Width:              c.defaults.Width,
 		Height:             c.defaults.Height,
@@ -124,7 +124,7 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		NumOutputs:         c.defaults.Cnt,
 		CFGScale:           c.defaults.CFGScale,
 		SamplerName:        c.defaults.Sampler,
-		ModelName:          "sd-v1-5-inpainting",
+		ModelName:          c.defaults.KukaModel,
 		Upscale: reqparams.ReqParamsUpscale{
 			Upscaler: "LDSR",
 		},

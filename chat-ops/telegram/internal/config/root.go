@@ -11,17 +11,20 @@ import (
 )
 
 type GenerationDefaults struct {
-	Model      string
-	Sampler    string
-	Cnt        int
-	Batch      int
-	Steps      int
-	Width      int
-	Height     int
-	WidthSDXL  int
-	HeightSDXL int
-	StepsSDXL  int
-	CFGScale   float64
+	Model              string
+	Sampler            string
+	Cnt                int
+	Batch              int
+	Steps              int
+	Width              int
+	Height             int
+	WidthSDXL          int
+	HeightSDXL         int
+	StepsSDXL          int
+	CFGScale           float64
+	KukaModel          string
+	KukaPrompt         string
+	KukaNegativePrompt string
 }
 
 func (d GenerationDefaults) String() string {
@@ -90,7 +93,9 @@ func (p *AppParams) Init() error {
 	flag.IntVar(&p.Defaults.HeightSDXL, "default-height-sdxl", defaults.HeightSDXL, "default image height for SDXL models")
 	flag.IntVar(&p.Defaults.StepsSDXL, "default-cnt-sdxl", defaults.StepsSDXL, "default generation steps count for SDXL models")
 	flag.Float64Var(&p.Defaults.CFGScale, "default-cfg-scale", defaults.CFGScale, "default CFG scale")
-	flag.StringVar(&p.Defaults.Model, "default-model", defaults.Model, "default model name")
+	flag.StringVar(&p.Defaults.KukaModel, "default-kuka-model", defaults.KukaModel, "default Kuka model name")
+	flag.StringVar(&p.Defaults.KukaPrompt, "default-kuka-prompt", defaults.KukaPrompt, "default Kuka prompt")
+	flag.StringVar(&p.Defaults.KukaNegativePrompt, "default-kuka-negative-prompt", defaults.KukaNegativePrompt, "default Kuka negative prompt")
 	flag.Parse()
 
 	if p.BotToken == "" {
