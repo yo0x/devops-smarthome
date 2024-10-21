@@ -19,6 +19,7 @@ type ReqParamsKuka struct {
 	CFGScale           float64
 	SamplerName        string
 	ModelName          string
+	DenoisingStrength  float32
 }
 
 func (r ReqParamsKuka) String() string {

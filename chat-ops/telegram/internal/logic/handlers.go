@@ -122,14 +122,24 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		Prompt:             c.defaults.KukaPrompt,
 		NegativePrompt:     c.defaults.KukaNegativePrompt,
 		Seed:               rand.Uint32(),
-		Width:              c.defaults.Width,
-		Height:             c.defaults.Height,
+		Width:              512,
+		Height:             512,
 		Steps:              c.defaults.KukaSteps,
 		NumOutputs:         1,
 		CFGScale:           c.defaults.KukaCFGScale,
 		SamplerName:        c.defaults.Sampler,
 		ModelName:          c.defaults.KukaModel,
+		DenoisingStrength:  0.75,
 	}
+
+	// Ensure no zero values
+	if reqParams.Steps == 0 {
+		reqParams.Steps = 20
+	}
+	if reqParams.CFGScale == 0 {
+		reqParams.CFGScale = 7.0
+	}
+	// Removed check for DenoisingStrength as it does not exist in ReqParamsKuka
 
 	log.Printf("DEBUG: Kuka params: %+v", reqParams)
 

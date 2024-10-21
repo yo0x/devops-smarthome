@@ -48,19 +48,20 @@ func (a *SdAPIType) req(ctx context.Context, path, service string, postData []by
 		return "", err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		fmt.Printf("Error on body: %s", postData)
-		if bodyBytes, err := io.ReadAll(resp.Body); err == nil {
-			fmt.Printf("Response: %s\n", string(bodyBytes))
-		} else {
-			fmt.Printf("")
-		}
-		return "", fmt.Errorf("api status code: %d (%s to %s)", resp.StatusCode, request.Method, path)
-	}
+
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error reading response body: %w", err)
 	}
+
+	if resp.StatusCode != 200 {
+		log.Printf("Error on request: %s", path)
+		log.Printf("Request body: %s", string(postData))
+		log.Printf("Response status: %d", resp.StatusCode)
+		log.Printf("Response body: %s", string(bodyBytes))
+		return "", fmt.Errorf("api status code: %d (%s to %s)\nResponse body: %s", resp.StatusCode, request.Method, path, string(bodyBytes))
+	}
+
 	return string(bodyBytes), nil
 }
 
@@ -148,68 +149,113 @@ func (a *SdAPIType) Render(ctx context.Context, p reqparams.ReqParams, _ []byte)
 }
 
 type img2imgReq struct {
-	Init_images       []string               `json:"init_images"`
-	Prompt            string                 `json:"prompt"`
-	NegativePrompt    string                 `json:"negative_prompt"`
-	Seed              uint32                 `json:"seed"`
-	SamplerName       string                 `json:"sampler_name"`
-	BatchSize         int                    `json:"batch_size"`
-	NIter             int                    `json:"n_iter"`
-	Steps             int                    `json:"steps"`
-	CFGScale          float64                `json:"cfg_scale"`
-	Width             int                    `json:"width"`
-	Height            int                    `json:"height"`
-	DenoisingStrength float32                `json:"denoising_strength"`
-	OverrideSettings  map[string]interface{} `json:"override_settings"`
-	SendImages        bool                   `json:"send_images"`
+	InitImages                        []string               `json:"init_images"`
+	Prompt                            string                 `json:"prompt"`
+	NegativePrompt                    string                 `json:"negative_prompt"`
+	Seed                              int                    `json:"seed"`
+	SamplerName                       string                 `json:"sampler_name"`
+	BatchSize                         int                    `json:"batch_size"`
+	NIter                             int                    `json:"n_iter"`
+	Steps                             int                    `json:"steps"`
+	CFGScale                          float64                `json:"cfg_scale"`
+	Width                             int                    `json:"width"`
+	Height                            int                    `json:"height"`
+	DenoisingStrength                 float32                `json:"denoising_strength"`
+	OverrideSettings                  map[string]interface{} `json:"override_settings"`
+	OverrideSettingsRestoreAfterwards bool                   `json:"override_settings_restore_afterwards"`
+	ScriptName                        string                 `json:"script_name,omitempty"`
+	ScriptArgs                        []interface{}          `json:"script_args,omitempty"`
+	SamplerIndex                      string                 `json:"sampler_index"`
+	IncludeInitImages                 bool                   `json:"include_init_images"`
+	ResizeMode                        int                    `json:"resize_mode"`
+	ImageCFGScale                     float64                `json:"image_cfg_scale"`
+	Mask                              string                 `json:"mask,omitempty"`
+	MaskBlur                          int                    `json:"mask_blur"`
+	InpaintingFill                    int                    `json:"inpainting_fill"`
+	InpaintFullRes                    bool                   `json:"inpaint_full_res"`
+	InpaintFullResPadding             int                    `json:"inpaint_full_res_padding"`
+	InpaintingMaskInvert              int                    `json:"inpainting_mask_invert"`
 }
 
 func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, imageData []byte) (imgs [][]byte, err error) {
 	params := p.(reqparams.ReqParamsKuka)
 	log.Println("Img2Img params:", params)
 
+	// Ensure we're not sending any zero values
+	if params.Width == 0 {
+		params.Width = 512
+	}
+	if params.Height == 0 {
+		params.Height = 512
+	}
+	if params.Steps == 0 {
+		params.Steps = 20
+	}
+	if params.CFGScale == 0 {
+		params.CFGScale = 7.0
+	}
+
+	denoisingStrength := 0.75
+	if params.DenoisingStrength > 0 {
+		denoisingStrength = float64(params.DenoisingStrength)
+	}
+
 	postData, err := json.Marshal(img2imgReq{
-		Init_images:       []string{base64.StdEncoding.EncodeToString(imageData)},
+		InitImages:        []string{base64.StdEncoding.EncodeToString(imageData)},
 		Prompt:            params.Prompt,
 		NegativePrompt:    params.NegativePrompt,
-		Seed:              params.Seed,
+		Seed:              int(params.Seed),
 		SamplerName:       params.SamplerName,
+		SamplerIndex:      params.SamplerName,
 		BatchSize:         1,
 		NIter:             1,
 		Steps:             params.Steps,
 		CFGScale:          params.CFGScale,
 		Width:             params.Width,
 		Height:            params.Height,
-		DenoisingStrength: 0.75, // You can adjust this value or make it configurable
+		DenoisingStrength: float32(denoisingStrength),
 		OverrideSettings: map[string]interface{}{
 			"sd_model_checkpoint": params.ModelName,
 		},
-		SendImages: true,
+		OverrideSettingsRestoreAfterwards: true,
+		ResizeMode:                        1, // Changed from 0 to 1 (scale to fit)
+		ImageCFGScale:                     1.5,
+		MaskBlur:                          4,
+		InpaintingFill:                    1,
+		InpaintFullRes:                    true,
+		InpaintFullResPadding:             32,
+		InpaintingMaskInvert:              1,
+		IncludeInitImages:                 false,
+		ScriptArgs:                        []interface{}{},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error marshalling request: %w", err)
 	}
+
+	log.Printf("Img2Img request: %s", string(postData))
 
 	res, err := a.req(ctx, "/img2img", "", postData)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error making request: %w", err)
 	}
 
 	var renderResp struct {
 		Images []string `json:"images"`
+		Info   string   `json:"info"`
 	}
 	err = json.Unmarshal([]byte(res), &renderResp)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
 	if len(renderResp.Images) == 0 {
-		return nil, fmt.Errorf("unknown error")
+		log.Printf("Img2Img response info: %s", renderResp.Info)
+		return nil, fmt.Errorf("no images returned")
 	}
 
 	for _, img := range renderResp.Images {
 		var unbased []byte
 		if unbased, err = base64.StdEncoding.DecodeString(img); err != nil {
-			return nil, fmt.Errorf("image base64 decode error")
+			return nil, fmt.Errorf("image base64 decode error: %w", err)
 		}
 		imgs = append(imgs, unbased)
 	}
