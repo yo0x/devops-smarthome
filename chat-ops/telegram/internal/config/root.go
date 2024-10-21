@@ -25,6 +25,8 @@ type GenerationDefaults struct {
 	KukaModel          string
 	KukaPrompt         string
 	KukaNegativePrompt string
+	KukaCFGScale       float64
+	KukaSteps          int
 }
 
 func (d GenerationDefaults) String() string {
@@ -97,7 +99,33 @@ func (p *AppParams) Init() error {
 	flag.StringVar(&p.Defaults.KukaPrompt, "default-kuka-prompt", defaults.KukaPrompt, "default Kuka prompt")
 	flag.StringVar(&p.Defaults.KukaNegativePrompt, "default-kuka-negative-prompt", defaults.KukaNegativePrompt, "default Kuka negative prompt")
 	flag.Parse()
-
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_PROMPT"); isSet {
+		defaults.KukaPrompt = value
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_NEGATIVE_PROMPT"); isSet {
+		defaults.KukaNegativePrompt = value
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_MODEL"); isSet {
+		defaults.KukaModel = value
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_CFG_SCALE"); isSet {
+		if floatValue, err := strconv.ParseFloat(value, 64); err == nil {
+			defaults.KukaCFGScale = floatValue
+		} else {
+			defaults.KukaCFGScale = 7.0
+		}
+	} else {
+		defaults.KukaCFGScale = 7.0
+	}
+	if value, isSet := os.LookupEnv("DEFAULT_KUKA_STEPS"); isSet {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			defaults.KukaSteps = intValue
+		} else {
+			defaults.KukaSteps = 30
+		}
+	} else {
+		defaults.KukaSteps = 30
+	}
 	if p.BotToken == "" {
 		p.BotToken = os.Getenv("BOT_TOKEN")
 	}
@@ -166,6 +194,8 @@ type defaultsFromEnv struct {
 	KukaPrompt             string
 	KukaNegativePrompt     string
 	KukaModel              string
+	KukaCFGScale           float64
+	KukaSteps              int
 }
 
 func getDefaultsFromEnv() (defaults defaultsFromEnv) {

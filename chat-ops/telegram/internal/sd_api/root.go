@@ -148,15 +148,9 @@ func (a *SdAPIType) Render(ctx context.Context, p reqparams.ReqParams, _ []byte)
 }
 
 type img2imgReq struct {
-	EnableHR          bool                   `json:"enable_hr"`
-	DenoisingStrength float32                `json:"denoising_strength"`
-	HRScale           float32                `json:"hr_scale"`
-	HRUpscaler        string                 `json:"hr_upscaler"`
-	HRSecondPassSteps int                    `json:"hr_second_pass_steps"`
-	HRSamplerName     string                 `json:"hr_sampler_name"`
-	HRPrompt          string                 `json:"hr_prompt"`
-	HRNegativePrompt  string                 `json:"hr_negative_prompt"`
+	Init_images       []string               `json:"init_images"`
 	Prompt            string                 `json:"prompt"`
+	NegativePrompt    string                 `json:"negative_prompt"`
 	Seed              uint32                 `json:"seed"`
 	SamplerName       string                 `json:"sampler_name"`
 	BatchSize         int                    `json:"batch_size"`
@@ -165,41 +159,33 @@ type img2imgReq struct {
 	CFGScale          float64                `json:"cfg_scale"`
 	Width             int                    `json:"width"`
 	Height            int                    `json:"height"`
-	NegativePrompt    string                 `json:"negative_prompt"`
+	DenoisingStrength float32                `json:"denoising_strength"`
 	OverrideSettings  map[string]interface{} `json:"override_settings"`
 	SendImages        bool                   `json:"send_images"`
 }
 
-func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, _ []byte) (imgs [][]byte, err error) {
+func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, imageData []byte) (imgs [][]byte, err error) {
 	params := p.(reqparams.ReqParamsKuka)
 	log.Println("Img2Img params:", params)
-	n_iter := int(math.Ceil(float64(params.NumOutputs) / float64(params.BatchSize)))
 
 	postData, err := json.Marshal(img2imgReq{
-		EnableHR:          params.HR.Scale > 0,
-		DenoisingStrength: params.HR.DenoisingStrength,
-		HRScale:           params.HR.Scale,
-		HRUpscaler:        params.HR.Upscaler,
-		HRSecondPassSteps: params.HR.SecondPassSteps,
-		HRSamplerName:     params.SamplerName,
-		HRPrompt:          params.Prompt,
-		HRNegativePrompt:  params.NegativePrompt,
+		Init_images:       []string{base64.StdEncoding.EncodeToString(imageData)},
 		Prompt:            params.Prompt,
+		NegativePrompt:    params.NegativePrompt,
 		Seed:              params.Seed,
 		SamplerName:       params.SamplerName,
-		BatchSize:         params.BatchSize,
-		NIter:             n_iter,
+		BatchSize:         1,
+		NIter:             1,
 		Steps:             params.Steps,
 		CFGScale:          params.CFGScale,
 		Width:             params.Width,
 		Height:            params.Height,
-		NegativePrompt:    params.NegativePrompt,
+		DenoisingStrength: 0.75, // You can adjust this value or make it configurable
 		OverrideSettings: map[string]interface{}{
 			"sd_model_checkpoint": params.ModelName,
 		},
 		SendImages: true,
 	})
-	log.Println("Img2Img postData:", string(postData))
 	if err != nil {
 		return nil, err
 	}

@@ -445,6 +445,7 @@ func (q *ReqQueue) processQueueEntry(processCtx context.Context, sdApi *sdapi.Sd
 }
 
 // kukafy func like upscale with different processFn to execute custom model & promts for Kuka
+
 func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, reqParams reqparams.ReqParamsKuka, imageData telegram.ImageFileData) error {
 	reqParamsText := reqParams.String()
 
