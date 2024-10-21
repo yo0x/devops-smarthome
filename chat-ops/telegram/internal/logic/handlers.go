@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"os/exec"
 	"strings"
@@ -114,7 +115,11 @@ type CmdHandler struct {
 }
 
 func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
+	log.Println("DEBUG: img2img command received")
+
 	text := strings.TrimSpace(removeBotName(msg.Text))
+	log.Printf("DEBUG: Processed text: %s", text)
+
 	reqParams := reqparams.ReqParamsRender{
 		OriginalPromptText: c.defaults.KukaPrompt,
 		Seed:               rand.Uint32(),
@@ -145,13 +150,17 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		reqParams.Prompt = text
 		paramsLine = &reqParams.Prompt
 	}
+	log.Printf("DEBUG: Parsed params: %+v", reqParams)
+
 	firstCmdCharAt, err := ReqParamsParse(ctx, c.sdApi, c.defaults, *paramsLine, &reqParams)
 	if err != nil {
+		log.Printf("ERROR: Failed to parse render params: %v", err)
 		c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": can't parse render params: "+err.Error())
 		return
 	}
 	if firstCmdCharAt >= 0 { // Commands found? Removing them from the line.
 		if firstCmdCharAt == 0 {
+			log.Println("WARN: Empty request error")
 			c.bot.SendReplyToMessage(ctx, msg, consts.EmptyRequestErrorStr)
 			return
 		}
@@ -164,9 +173,10 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 
 	reqParams.Prompt = strings.TrimSpace(reqParams.Prompt)
 	reqParams.NegativePrompt = strings.TrimSpace(reqParams.NegativePrompt)
+	log.Printf("DEBUG: Final params: %+v", reqParams)
 
 	// if reqParams.Prompt == "" {
-	// 	fmt.Println("  missing prompt")
+	// 	log.Println("WARN: Missing prompt")
 	// 	c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": missing prompt")
 	// 	return
 	// }
@@ -180,7 +190,9 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 		Message: msg,
 		Params:  reqParams,
 	}
+	log.Println("DEBUG: Adding request to queue")
 	c.reqQueue.Add(req)
+	log.Println("DEBUG: Request added to queue")
 }
 
 func (c *CmdHandler) txt2img(ctx context.Context, msg *models.Message) {

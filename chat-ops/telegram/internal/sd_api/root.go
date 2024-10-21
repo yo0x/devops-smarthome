@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"net/url"
@@ -171,7 +172,7 @@ type img2imgReq struct {
 
 func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, _ []byte) (imgs [][]byte, err error) {
 	params := p.(reqparams.ReqParamsKuka)
-
+	log.Println("Img2Img params:", params)
 	n_iter := int(math.Ceil(float64(params.NumOutputs) / float64(params.BatchSize)))
 
 	postData, err := json.Marshal(img2imgReq{
@@ -198,6 +199,7 @@ func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, _ []byte
 		},
 		SendImages: true,
 	})
+	log.Println("Img2Img postData:", string(postData))
 	if err != nil {
 		return nil, err
 	}

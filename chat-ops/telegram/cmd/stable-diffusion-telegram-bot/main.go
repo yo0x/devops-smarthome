@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"time"
@@ -20,6 +21,7 @@ import (
 
 func main() {
 	fmt.Println("stable-diffusion-telegram-bot starting...")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if _, isEnvFileSet := os.LookupEnv("ENVFILE"); isEnvFileSet {
 		utils.ReadEnvFile(os.Getenv("ENVFILE"))
 	} else {
@@ -33,14 +35,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Using params", params)
-
+	log.Println("Using params", params)
 	var cancel context.CancelFunc
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
 	sdApi := sdapi.SdAPIType{SdHost: params.StableDiffusionApiHost}
-
+	log.Println("sdApi.SdHost", sdApi.SdHost)
 	reqQueue := reqqueue.ReqQueue{ProcessTimeout: params.ProcessTimeout}
 	cmdHandler := logic.NewCmdHandler(
 		&sdApi,
@@ -54,14 +55,14 @@ func main() {
 	if nil != err {
 		panic(fmt.Sprint("can't init telegram bot: ", err.Error()))
 	}
-
+	log.Println("telegramBot", telegramBot)
 	cmdHandler.AddHandlers(telegramBot)
 
 	reqQueue.Init(ctx, &sdApi, telegramBot)
 
 	verStr, _ := sdapi.VersionCheckGetStr(ctx, params.StableDiffusionApiHost)
 	telegramBot.SendTextToAdmins(ctx, params.AdminUserIDs, consts.BotStartedToAdminsStr+internal.Version+", "+verStr)
-
+	log.Println("Bot started")
 	go func() {
 		for {
 			time.Sleep(24 * time.Hour)
@@ -70,6 +71,5 @@ func main() {
 			}
 		}
 	}()
-
 	telegramBot.Start(ctx)
 }
