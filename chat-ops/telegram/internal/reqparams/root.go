@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type ReqParamsImg2Img struct {
+type ReqParamsKuka struct {
 	HR                 ReqParamsRenderHR
 	OriginalPromptText string
 	Prompt             string
@@ -21,7 +21,7 @@ type ReqParamsImg2Img struct {
 	ModelName          string
 }
 
-func (r ReqParamsImg2Img) String() string {
+func (r ReqParamsKuka) String() string {
 	var numOutputs string
 	if r.NumOutputs > 1 {
 		numOutputs = fmt.Sprintf("x%d", r.NumOutputs)
@@ -55,7 +55,7 @@ func (r ReqParamsImg2Img) String() string {
 	return res
 }
 
-func (r ReqParamsImg2Img) OriginalPrompt() string {
+func (r ReqParamsKuka) OriginalPrompt() string {
 	return r.OriginalPromptText
 }
 

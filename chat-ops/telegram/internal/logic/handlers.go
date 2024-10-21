@@ -165,11 +165,11 @@ func (c *CmdHandler) img2img(ctx context.Context, msg *models.Message) {
 	reqParams.Prompt = strings.TrimSpace(reqParams.Prompt)
 	reqParams.NegativePrompt = strings.TrimSpace(reqParams.NegativePrompt)
 
-	if reqParams.Prompt == "" {
-		fmt.Println("  missing prompt")
-		c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": missing prompt")
-		return
-	}
+	// if reqParams.Prompt == "" {
+	// 	fmt.Println("  missing prompt")
+	// 	c.bot.SendReplyToMessage(ctx, msg, consts.ErrorStr+": missing prompt")
+	// 	return
+	// }
 
 	if reqParams.HR.Scale > 0 || reqParams.Upscale.Scale > 0 {
 		reqParams.NumOutputs = 1

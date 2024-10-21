@@ -170,7 +170,7 @@ type img2imgReq struct {
 }
 
 func (a *SdAPIType) Img2Img(ctx context.Context, p reqparams.ReqParams, _ []byte) (imgs [][]byte, err error) {
-	params := p.(reqparams.ReqParamsImg2Img)
+	params := p.(reqparams.ReqParamsKuka)
 
 	n_iter := int(math.Ceil(float64(params.NumOutputs) / float64(params.BatchSize)))
 

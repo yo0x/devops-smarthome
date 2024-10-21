@@ -27,6 +27,7 @@ type ReqType int
 const (
 	ReqTypeRender ReqType = iota
 	ReqTypeUpscale
+	ReqTypeKuka
 )
 
 type ReqQueueEntry struct {
@@ -436,11 +437,42 @@ func (q *ReqQueue) processQueueEntry(processCtx context.Context, sdApi *sdapi.Sd
 		return q.render(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsRender))
 	case ReqTypeUpscale:
 		return q.upscale(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsUpscale), imageData)
+	case ReqTypeKuka:
+		return q.kukafy(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsKuka), imageData)
 	default:
-		return fmt.Errorf("unknown request")
+		return fmt.Errorf("unknown request type")
 	}
 }
 
+// kukafy func like upscale with different processFn to execute custom model & promts for Kuka
+func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, reqParams reqparams.ReqParamsKuka, imageData telegram.ImageFileData) error {
+	reqParamsText := reqParams.String()
+
+	imgs, err := q.runProcess(processCtx, sdApi, sdApi.Img2Img, reqParams, imageData, reqParamsText)
+	if err != nil {
+		return err
+	}
+
+	fn := utils.FilenameWithoutExt(imageData.Filename) + "-kukafied"
+	if !reqParams.OutputPNG {
+		err = q.currentEntry.entry.convertImagesFromPNGToJPG(imgs)
+		if err != nil {
+			return err
+		}
+		fn += ".jpg"
+	} else {
+		fn += ".png"
+	}
+
+	fmt.Println("  uploading...")
+	q.currentEntry.entry.sendReply(q.ctx, consts.UploadingStr+"\n"+reqParamsText)
+
+	err = q.currentEntry.entry.uploadImages(q.ctx, 0, "", imgs, fn, true, reqParams.OutputPNG)
+	if err == nil {
+		q.currentEntry.entry.deleteReply(q.ctx)
+	}
+	return err
+}
 func (q *ReqQueue) processor(sdApi *sdapi.SdAPIType) {
 	for {
 		q.mutex.Lock()
@@ -467,6 +499,8 @@ func (q *ReqQueue) processor(sdApi *sdapi.SdAPIType) {
 		imageNeededFirst := false
 		switch q.currentEntry.entry.Type {
 		case ReqTypeUpscale:
+			imageNeededFirst = true
+		case ReqTypeKuka:
 			imageNeededFirst = true
 		}
 		if imageNeededFirst {
