@@ -20,3 +20,5 @@
 kubectl edit configmap coredns -n kube-system
 
 kubectl rollout restart deployment coredns -n kube-system
+
+kubectl create secret generic cloudflare-api-token-secret --from-literal=apiKey=<your-cloudflare-api-token> -n cert-manager
