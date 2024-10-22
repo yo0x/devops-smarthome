@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Launch linux bot Package",
             "type": "go",
@@ -18,9 +19,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}\\chat-ops\\telegram\\cmd\\stable-diffusion-telegram-bot",
-            "args": [
-                "--check-go-version=false"
-            ]
+            "envFile": "${workspaceFolder}\\chat-ops\\telegram\\.env"
         },
         {
             "name": "Launch test function",
