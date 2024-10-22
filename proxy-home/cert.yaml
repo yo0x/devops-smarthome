@@ -10,22 +10,25 @@
 #kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/cloud/deploy.yaml
 
 # ---
-# # 2. Create an Issuer or ClusterIssuer
-# apiVersion: cert-manager.io/v1
-# kind: ClusterIssuer
-# metadata:
-#   name: letsencrypt-prod
-#   namespace: open-webui
-# spec:
-#   acme:
-#     server: https://acme-v02.api.letsencrypt.org/directory
-#     email: yonor@me.com
-#     privateKeySecretRef:
-#       name: letsencrypt-prod-account-key
-#     solvers:
-#       - http01:
-#           ingress:
-#             class: nginx
+# 2. Create an Issuer or ClusterIssuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: cert-manager
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: yonor@me.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - dns01:
+          cloudflare:
+            email: 6yonor@gmail.com
+            apiTokenSecretRef:
+              name: cloudflare-api-token-secret
+              key: apiKey
 # ---
 # apiVersion: v1
 # kind: Service
@@ -50,32 +53,32 @@
 #       - ip: 192.168.1.213
 #     ports:
 #       - port: 11434
----
-# 3. Update your Ingress resource to use cert-manager
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ai-ingress
-  namespace: open-webui
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  tls:
-    - hosts:
-        - cabezon.yonor.me
-      secretName: nginx-tls
-  ingressClassName: nginx
-  rules:
-    - host: cabezon.yonor.me
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: open-webui
-                port:
-                  number: 80
+# ---
+# # 3. Update your Ingress resource to use cert-manager
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ai-ingress
+#   namespace: open-webui
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+# spec:
+#   tls:
+#     - hosts:
+#         - cabezon.yonor.me
+#       secretName: nginx-tls
+#   ingressClassName: nginx
+#   rules:
+#     - host: cabezon.yonor.me
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: open-webui
+#                 port:
+#                   number: 80
 # ---
 # # 3. Update your Ingress resource to use cert-manager
 # apiVersion: networking.k8s.io/v1
