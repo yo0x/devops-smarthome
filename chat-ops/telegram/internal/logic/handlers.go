@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 	"fmt"
+	"image"
+	"image/color"
 	"io"
 	"log"
 	"math/rand"
@@ -18,6 +20,7 @@ import (
 	"github.com/kanootoko/stable-diffusion-telegram-bot/internal/reqparams"
 	sdapi "github.com/kanootoko/stable-diffusion-telegram-bot/internal/sd_api"
 	"github.com/kanootoko/stable-diffusion-telegram-bot/internal/telegram"
+	"gocv.io/x/gocv"
 )
 
 func NewCmdHandler(
@@ -468,4 +471,30 @@ func (c *CmdHandler) handleImage(ctx context.Context, msg *models.Message, fileI
 		Data:     d,
 		Filename: filename,
 	})
+}
+
+func createMaskFromPrompt(imagePath string, prompt string) ([]byte, error) {
+	// Load the image
+	img := gocv.IMRead(imagePath, gocv.IMReadColor)
+	if img.Empty() {
+		return nil, fmt.Errorf("could not read image")
+	}
+	defer img.Close()
+
+	// Create a mask with the same size as the image
+	mask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
+	defer mask.Close()
+
+	// Detect features based on the prompt (this is a placeholder for actual detection logic)
+	// For example, use a pre-trained model to detect faces or other features
+	// Here, we simply fill the mask with white color for demonstration
+	gocv.Rectangle(&mask, image.Rect(50, 50, 200, 200), color.RGBA{255, 255, 255, 0}, -1)
+
+	// Encode the mask to a byte array
+	buf, err := gocv.IMEncode(".png", mask)
+	if err != nil {
+		return nil, fmt.Errorf("could not encode mask: %w", err)
+	}
+
+	return buf.GetBytes(), nil
 }

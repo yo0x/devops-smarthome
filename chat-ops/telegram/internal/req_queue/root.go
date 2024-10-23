@@ -5,11 +5,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"image"
 	"image/jpeg"
 	"image/png"
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -20,6 +22,7 @@ import (
 	sdapi "github.com/kanootoko/stable-diffusion-telegram-bot/internal/sd_api"
 	"github.com/kanootoko/stable-diffusion-telegram-bot/internal/telegram"
 	"github.com/kanootoko/stable-diffusion-telegram-bot/internal/utils"
+	"gocv.io/x/gocv"
 )
 
 type ReqType int
@@ -438,18 +441,26 @@ func (q *ReqQueue) processQueueEntry(processCtx context.Context, sdApi *sdapi.Sd
 	case ReqTypeUpscale:
 		return q.upscale(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsUpscale), imageData)
 	case ReqTypeKuka:
-		return q.kukafy(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsKuka), imageData)
+		return q.kukafy(processCtx, sdApi, q.currentEntry.entry.Params.(reqparams.ReqParamsKuka), imageData, "MASK_CONST")
 	default:
 		return fmt.Errorf("unknown request type")
 	}
 }
 
 // kukafy func like upscale with different processFn to execute custom model & promts for Kuka
-
-func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, reqParams reqparams.ReqParamsKuka, imageData telegram.ImageFileData) error {
+func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, reqParams reqparams.ReqParamsKuka, imageData telegram.ImageFileData, maskPrompt string) error {
 	reqParamsText := reqParams.String()
 
-	imgs, err := q.runProcess(processCtx, sdApi, sdApi.Img2Img, reqParams, imageData, reqParamsText)
+	// Create a mask from the image based on the prompt
+	maskData, err := createMaskFromPrompt(imageData.Filename, maskPrompt)
+	if err != nil {
+		return fmt.Errorf("error creating mask: %w", err)
+	}
+
+	// Use Img2Img with inpainting
+	imgs, err := q.runProcess(processCtx, sdApi, func(ctx context.Context, p reqparams.ReqParams, imgData []byte) ([][]byte, error) {
+		return sdApi.Img2Img(ctx, p, imgData, maskData)
+	}, reqParams, imageData, reqParamsText)
 	if err != nil {
 		return err
 	}
@@ -474,6 +485,235 @@ func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, re
 	}
 	return err
 }
+
+// FeatPart represents which part of the Feat to detect
+type FeatPart string
+
+const (
+	FeatTop    FeatPart = "top"
+	FeatBottom FeatPart = "bottom"
+)
+
+// createMaskFromPrompt generates a binary mask focusing on Feat detection
+// filename: path to the input image
+// prompt: text description of the Feat to mask (e.g., "red Feat top", "blue Feat bottom")
+func createMaskFromPrompt(filename, prompt string) ([]byte, error) {
+	// Read the input image
+	img := gocv.IMRead(filename, gocv.IMReadColor)
+	if img.Empty() {
+		return nil, errors.New("error reading image file")
+	}
+	defer img.Close()
+
+	// Create a blank mask of the same size as input image
+	finalMask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8UC1)
+	defer finalMask.Close()
+
+	// Detect person to limit the search area
+	personMask, err := detectPerson(img)
+	if err != nil {
+		return nil, err
+	}
+	defer personMask.Close()
+
+	// Determine which part of the Feat to detect
+	var part FeatPart
+	if containsKeyword(prompt, "top", "upper") {
+		part = FeatTop
+	} else if containsKeyword(prompt, "bottom", "lower") {
+		part = FeatBottom
+	} else {
+		// Default to detecting both parts
+		part = FeatTop
+	}
+
+	// Create Feat mask based on the prompt and part
+	FeatMask, err := detectFeat(img, personMask, prompt, part)
+	if err != nil {
+		return nil, err
+	}
+	defer FeatMask.Close()
+
+	// Combine masks
+	gocv.BitwiseAnd(personMask, FeatMask, &finalMask)
+
+	// Convert Mat to byte slice
+	bytes, err := finalMask.ToBytes()
+	if err != nil {
+		return nil, errors.New("error converting mask to bytes")
+	}
+
+	return bytes, nil
+}
+
+func detectPerson(img gocv.Mat) (gocv.Mat, error) {
+	mask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8UC1)
+
+	// Use body detection optimized for swimwear
+	hog := gocv.NewHOGDescriptor()
+	defer hog.Close()
+	hog.SetSVMDetector(gocv.HOGDefaultPeopleDetector())
+
+	// Detect with HOG
+	regions := hog.DetectMultiScale(img)
+	for _, r := range regions {
+		gocv.Rectangle(&mask, r, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+	}
+
+	return mask, nil
+}
+
+func detectFeat(img, personMask gocv.Mat, prompt string, part FeatPart) (gocv.Mat, error) {
+	mask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8UC1)
+
+	// Convert to different color spaces for better segmentation
+	hsvImg := gocv.NewMat()
+	labImg := gocv.NewMat()
+	defer hsvImg.Close()
+	defer labImg.Close()
+
+	gocv.CvtColor(img, &hsvImg, gocv.ColorBGRToHSV)
+	gocv.CvtColor(img, &labImg, gocv.ColorBGRToLab)
+
+	// Get color-based mask
+	colorMask := getFeatColorMask(hsvImg, prompt)
+	defer colorMask.Close()
+
+	// Get region-based mask
+	regionMask := getFeatRegionMask(img, part)
+	defer regionMask.Close()
+
+	// Combine color and region masks
+	gocv.BitwiseAnd(colorMask, regionMask, &mask)
+
+	// Detect patterns if specified in prompt
+	if containsKeyword(prompt, "pattern", "print", "stripe", "dot") {
+		patternMask := detectPattern(img)
+		defer patternMask.Close()
+		gocv.BitwiseAnd(mask, patternMask, &mask)
+	}
+
+	// Post-processing specific to swimwear
+	refineMask(img, &mask, part)
+
+	return mask, nil
+}
+
+func getFeatColorMask(hsvImg gocv.Mat, prompt string) gocv.Mat {
+	mask := gocv.NewMatWithSize(hsvImg.Rows(), hsvImg.Cols(), gocv.MatTypeCV8UC1)
+
+	// Define expanded color ranges for swimwear
+	colorRanges := map[string]struct {
+		lower gocv.Scalar
+		upper gocv.Scalar
+	}{
+		"red":    {gocv.NewScalar(0.0, 50.0, 50.0, 0.0), gocv.NewScalar(10.0, 255.0, 255.0, 0.0)},
+		"blue":   {gocv.NewScalar(100.0, 50.0, 50.0, 0.0), gocv.NewScalar(130.0, 255.0, 255.0, 0.0)},
+		"green":  {gocv.NewScalar(45.0, 50.0, 50.0, 0.0), gocv.NewScalar(75.0, 255.0, 255.0, 0.0)},
+		"pink":   {gocv.NewScalar(150.0, 50.0, 50.0, 0.0), gocv.NewScalar(170.0, 255.0, 255.0, 0.0)},
+		"purple": {gocv.NewScalar(130.0, 50.0, 50.0, 0.0), gocv.NewScalar(150.0, 255.0, 255.0, 0.0)},
+		"yellow": {gocv.NewScalar(20.0, 50.0, 50.0, 0.0), gocv.NewScalar(30.0, 255.0, 255.0, 0.0)},
+		"orange": {gocv.NewScalar(10.0, 50.0, 50.0, 0.0), gocv.NewScalar(20.0, 255.0, 255.0, 0.0)},
+		"black":  {gocv.NewScalar(0.0, 0.0, 0.0, 0.0), gocv.NewScalar(180.0, 255.0, 50.0, 0.0)},
+		"white":  {gocv.NewScalar(0.0, 0.0, 200.0, 0.0), gocv.NewScalar(180.0, 30.0, 255.0, 0.0)},
+	}
+
+	for color, range_ := range colorRanges {
+		if containsKeyword(prompt, color) {
+			colorMask := gocv.NewMat()
+			defer colorMask.Close()
+			gocv.InRange(hsvImg, range_.lower, range_.upper, &colorMask)
+			gocv.BitwiseOr(mask, colorMask, &mask)
+		}
+	}
+
+	return mask
+}
+
+func getFeatRegionMask(img gocv.Mat, part FeatPart) gocv.Mat {
+	mask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8UC1)
+
+	switch part {
+	case FeatTop:
+		// Focus on upper body region (approximately 25-40% of height)
+		// Adjusted for typical Feat top placement
+		roi := image.Rect(
+			img.Cols()/6,   // x start
+			img.Rows()/4,   // y start
+			img.Cols()*5/6, // x end
+			img.Rows()*2/5, // y end
+		)
+		gocv.Rectangle(&mask, roi, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+
+	case FeatBottom:
+		// Focus on lower body region (approximately 50-65% of height)
+		// Adjusted for typical Feat bottom placement
+		roi := image.Rect(
+			img.Cols()/6,     // x start
+			img.Rows()/2,     // y start
+			img.Cols()*5/6,   // x end
+			img.Rows()*13/20, // y end
+		)
+		gocv.Rectangle(&mask, roi, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+	}
+
+	return mask
+}
+
+func detectPattern(img gocv.Mat) gocv.Mat {
+	mask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8UC1)
+
+	// Convert to grayscale
+	gray := gocv.NewMat()
+	defer gray.Close()
+	gocv.CvtColor(img, &gray, gocv.ColorBGRToGray)
+
+	// Edge detection for patterns
+	edges := gocv.NewMat()
+	defer edges.Close()
+	gocv.Canny(gray, &edges, 50, 150)
+
+	// Detect repeating patterns using frequency analysis
+	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Pt(3, 3))
+	defer kernel.Close()
+	gocv.MorphologyEx(edges, &mask, gocv.MorphClose, kernel)
+
+	return mask
+}
+
+func refineMask(img gocv.Mat, mask *gocv.Mat, part FeatPart) {
+	// Apply different refinement based on Feat part
+	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Pt(3, 3))
+	defer kernel.Close()
+
+	switch part {
+	case FeatTop:
+		// More aggressive cleaning for top part
+		gocv.MorphologyEx(*mask, mask, gocv.MorphOpen, kernel)
+		gocv.MorphologyEx(*mask, mask, gocv.MorphClose, kernel)
+
+	case FeatBottom:
+		// Less aggressive cleaning for bottom part
+		gocv.MorphologyEx(*mask, mask, gocv.MorphClose, kernel)
+	}
+
+	// Edge refinement
+	edges := gocv.NewMat()
+	defer edges.Close()
+	gocv.Canny(img, &edges, 100, 200)
+	gocv.BitwiseAnd(*mask, edges, mask)
+}
+
+func containsKeyword(prompt string, keywords ...string) bool {
+	promptLower := strings.ToLower(prompt)
+	for _, keyword := range keywords {
+		if strings.Contains(promptLower, strings.ToLower(keyword)) {
+			return true
+		}
+	}
+	return false
+}
+
 func (q *ReqQueue) processor(sdApi *sdapi.SdAPIType) {
 	for {
 		q.mutex.Lock()
