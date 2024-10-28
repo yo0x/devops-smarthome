@@ -1,17 +1,18 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: octo-pv
+  name: pv-influxdb
+  namespace: toran
 spec:
   capacity:
-    storage: 2Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
+  storageClassName: "nfs-client"
   nfs:
-    path: /home/y7x/k8s-sc/ha
-    server: 192.168.1.126
+    path: /export/k8s-vols
+    server: 192.168.1.207
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
