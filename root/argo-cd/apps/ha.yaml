@@ -22,7 +22,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-ha
-  namespace: docker-reg
+  namespace: ha-dev
 spec:
   accessModes:
     - ReadWriteMany
