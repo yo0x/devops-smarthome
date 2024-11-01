@@ -8,7 +8,7 @@ persistence:
   accessMode: 'ReadWriteOnce'
   size: 20Gi
   storageClass: nfs-client
-  existingClaim: pvc-docker-registry
+  existingClaim: docker-registry-pv-claim
 
 secrets:
   htpasswd: ""
