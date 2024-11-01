@@ -22,6 +22,6 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 20Gi
   storageClassName: ""
   volumeName: octo-pv
