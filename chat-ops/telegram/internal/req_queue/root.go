@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/jpeg"
 	"image/png"
 	"math/rand"
@@ -452,14 +453,14 @@ func (q *ReqQueue) kukafy(processCtx context.Context, sdApi *sdapi.SdAPIType, re
 	reqParamsText := reqParams.String()
 
 	// Create a mask from the image based on the prompt
-	maskData, err := createMaskFromPrompt(imageData.Filename, maskPrompt)
+	_, err := createMaskFromPrompt(imageData.Filename, maskPrompt)
 	if err != nil {
 		return fmt.Errorf("error creating mask: %w", err)
 	}
 
 	// Use Img2Img with inpainting
 	imgs, err := q.runProcess(processCtx, sdApi, func(ctx context.Context, p reqparams.ReqParams, imgData []byte) ([][]byte, error) {
-		return sdApi.Img2Img(ctx, p, imgData, maskData)
+		return sdApi.Img2Img(ctx, p, imgData)
 	}, reqParams, imageData, reqParamsText)
 	if err != nil {
 		return err
@@ -538,10 +539,7 @@ func createMaskFromPrompt(filename, prompt string) ([]byte, error) {
 	gocv.BitwiseAnd(personMask, FeatMask, &finalMask)
 
 	// Convert Mat to byte slice
-	bytes, err := finalMask.ToBytes()
-	if err != nil {
-		return nil, errors.New("error converting mask to bytes")
-	}
+	bytes := finalMask.ToBytes()
 
 	return bytes, nil
 }
@@ -557,7 +555,7 @@ func detectPerson(img gocv.Mat) (gocv.Mat, error) {
 	// Detect with HOG
 	regions := hog.DetectMultiScale(img)
 	for _, r := range regions {
-		gocv.Rectangle(&mask, r, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+		gocv.Rectangle(&mask, r, color.RGBA{R: 255, G: 255, B: 255, A: 0}, -1) // Updated line
 	}
 
 	return mask, nil
@@ -622,7 +620,13 @@ func getFeatColorMask(hsvImg gocv.Mat, prompt string) gocv.Mat {
 		if containsKeyword(prompt, color) {
 			colorMask := gocv.NewMat()
 			defer colorMask.Close()
-			gocv.InRange(hsvImg, range_.lower, range_.upper, &colorMask)
+			lowerBound := gocv.NewMatWithSize(hsvImg.Rows(), hsvImg.Cols(), gocv.MatTypeCV8UC1)
+			defer lowerBound.Close()
+			upperBound := gocv.NewMatWithSize(hsvImg.Rows(), hsvImg.Cols(), gocv.MatTypeCV8UC1)
+			defer upperBound.Close()
+			lowerBound.SetTo(range_.lower)
+			upperBound.SetTo(range_.upper)
+			gocv.InRange(hsvImg, lowerBound, upperBound, &colorMask)
 			gocv.BitwiseOr(mask, colorMask, &mask)
 		}
 	}
@@ -643,7 +647,7 @@ func getFeatRegionMask(img gocv.Mat, part FeatPart) gocv.Mat {
 			img.Cols()*5/6, // x end
 			img.Rows()*2/5, // y end
 		)
-		gocv.Rectangle(&mask, roi, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+		gocv.Rectangle(&mask, roi, color.RGBA{R: 255, G: 255, B: 255, A: 0}, -1)
 
 	case FeatBottom:
 		// Focus on lower body region (approximately 50-65% of height)
@@ -654,7 +658,7 @@ func getFeatRegionMask(img gocv.Mat, part FeatPart) gocv.Mat {
 			img.Cols()*5/6,   // x end
 			img.Rows()*13/20, // y end
 		)
-		gocv.Rectangle(&mask, roi, gocv.NewScalar(255.0, 255.0, 255.0, 0.0), -1)
+		gocv.Rectangle(&mask, roi, color.RGBA{R: 255, G: 255, B: 255, A: 0}, -1)
 	}
 
 	return mask
