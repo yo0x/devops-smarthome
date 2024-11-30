@@ -6,13 +6,13 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/yo0x/fe-yonor.git
+    repoURL: git@github.com:yo0x/devops-smarthome.git
     path: site/fe
-    targetRevision: 3.3.2
+    targetRevision: 1.16.0
     chart: yonor-site
     helm:
       valueFiles:
-      - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: yonor-site
