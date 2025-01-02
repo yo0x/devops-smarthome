@@ -263,7 +263,7 @@ persistence:
   storageClass: nfs-client
   existingClaim: pvc-ha
   # Name of the existing volume claim for the stateful set, this option can be used to use existing volumes
-  # existingVolume: home-assistant-config
+  existingVolume: pv-ha-20
   ## Persistent Volume selectors
   ## https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
   matchLabels: {}
