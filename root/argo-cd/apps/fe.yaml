@@ -7,7 +7,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:yo0x/devops-smarthome.git
+    repoURL: https://github.com/yo0x/devops-smarthome.git
     path: site/fe
     targetRevision: 1.16.0
     chart: yonor-site-fe
