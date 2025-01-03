@@ -11,7 +11,7 @@ spec:
     targetRevision: main
     helm:
       valueFiles:
-        - root/environments/fe-values.yaml
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: yonor-site
