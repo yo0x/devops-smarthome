@@ -10,7 +10,7 @@ spec:
     repoURL: git@github.com:yo0x/devops-smarthome.git
     path: site/fe
     targetRevision: 1.16.0
-    chart: yonor-site
+    chart: yonor-site-fe
     helm:
       valueFiles:
         - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
