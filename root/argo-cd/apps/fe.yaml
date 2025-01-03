@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/yo0x/devops-smarthome.git
     path: site/fe
-    targetRevision: 1.16.0
+    targetRevision: main
     helm:
       valueFiles:
         - root/environments/fe-values.yaml
