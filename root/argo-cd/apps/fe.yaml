@@ -1,4 +1,3 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -10,10 +9,9 @@ spec:
     repoURL: https://github.com/yo0x/devops-smarthome.git
     path: site/fe
     targetRevision: 1.16.0
-    chart: yonor-site-fe
     helm:
       valueFiles:
-        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
+        - root/environments/fe-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: yonor-site
