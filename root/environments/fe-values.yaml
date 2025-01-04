@@ -47,14 +47,19 @@ service:
 
 ingress:
   enabled: true
-  class: "nginx"
+  className: nginx
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  host: "yonor.me"
+  hosts:
+    - host: "yonor.me"
+      paths:
+        - path: /
+          pathType: Prefix
   tls:
     - hosts:
         - "yonor.me"
       secretName: "nginx-tls"
+
 
 
 resources: {}
