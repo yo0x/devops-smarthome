@@ -6,9 +6,9 @@ replicaCount: 1
 
 image:
   repository: askljd23084/fe-yonor
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.1-31"
+  tag: "latest"
 
 imagePullSecrets:
   - name: regcred
@@ -43,7 +43,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 ingress:
   enabled: true
