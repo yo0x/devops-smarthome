@@ -1,3 +1,10 @@
 {
-    "ansible.python.interpreterPath": "/Users/yo0x/.pyenv/versions/3.9.1/bin/python"
+    "ansible.python.interpreterPath": "/Users/yo0x/.pyenv/versions/3.9.1/bin/python",
+    "accessibility.signals.chatResponseReceived": {
+        "sound": "off"
+    },
+    "accessibility.signals.taskFailed": {
+        "sound": "off",
+        "announcement": "off"
+    }
 }

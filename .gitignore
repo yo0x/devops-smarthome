@@ -349,3 +349,4 @@ chat-ops/telegram/.env.example
 chat-ops/telegram/stable-diffusion-telegram-bot.exe
 chat-ops/telegram/stable-diffusion-telegram-bot
 sec/ok.ps1
+.vscode/settings.json

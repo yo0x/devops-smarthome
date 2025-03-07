@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/8gears/n8n-helm-chart.git
+    targetRevision: 1.0.0
+    chart: charts/n8n
+    helm:
+      valueFiles:
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/n8n-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
