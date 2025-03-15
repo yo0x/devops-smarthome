@@ -7,10 +7,11 @@ spec:
   project: default
   source:
     # Use the OCI registry reference to the LiteLLM Helm chart
-    repoURL: oci://ghcr.io/berriai/litellm-helm
+    repoURL: https://github.com/BerriAI/litellm.git
+    path: deploy/charts/litellm-helm
     chart: litellm-helm
     # Match the version you want to use (e.g. 0.1.2)
-    targetRevision: "0.1.2"
+    targetRevision: "0.4.1"
     helm:
       # (Optional) Reference your custom values file in Git or another source
       # If you only need to override a few parameters, you can also inline them
