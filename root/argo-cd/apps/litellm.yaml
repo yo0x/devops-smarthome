@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litellm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # Use the OCI registry reference to the LiteLLM Helm chart
+    repoURL: oci://ghcr.io/berriai/litellm-helm
+    chart: litellm-helm
+    # Match the version you want to use (e.g. 0.1.2)
+    targetRevision: "0.1.2"
+    helm:
+      # (Optional) Reference your custom values file in Git or another source
+      # If you only need to override a few parameters, you can also inline them
+      # under 'helm: values: | ...' or 'parameters: [...]'
+      valueFiles:
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/litellm-values.yaml
+      # Example override if you prefer setting a parameter:
+      # parameters:
+      #   - name: masterkey
+      #     value: "sk-1234"
+  destination:
+    # This is typically the in-cluster endpoint for Argo CD
+    server: https://kubernetes.default.svc
+    # Change the namespace if you prefer a different location
+    namespace: litellm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
