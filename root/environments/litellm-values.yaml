@@ -133,16 +133,16 @@ affinity: {}
 
 db:
   # Use an existing postgres server/cluster
-  useExisting: false
+  useExisting: true
 
   # How to connect to the existing postgres server/cluster
-  endpoint: localhost
+  endpoint: 192.168.1.126
   database: litellm
   url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)
   secret:
     name: postgres
-    usernameKey: username
-    passwordKey: password
+    usernameKey: cG9zdGdyZXMK
+    passwordKey: eW9ub3IK
 
   # Use the Stackgres Helm chart to deploy an instance of a Stackgres cluster.
   #  The Stackgres Operator must already be installed within the target
@@ -152,7 +152,7 @@ db:
 
   # Use the Postgres Helm chart to create a single node, stand alone postgres
   #  instance.  See the "postgresql" top level key for additional configuration.
-  deployStandalone: true
+  deployStandalone: false
 
 # Settings for Bitnami postgresql chart (if db.deployStandalone is true, ignored
 #  otherwise)
