@@ -7,10 +7,10 @@ spec:
   project: default
   source:
     # Use the OCI registry reference to the LiteLLM Helm chart
-    repoURL: oci://ghcr.io/berriai/litellm-helm
-    chart: litellm-helm
+    repoURL: https://unique-ag.github.io/helm-charts
+    chart: litellm
     # Match the version you want to use (e.g. 0.1.2)
-    targetRevision: "0.1.2"
+    targetRevision: "1.63.2"
     helm:
       # (Optional) Reference your custom values file in Git or another source
       # If you only need to override a few parameters, you can also inline them
