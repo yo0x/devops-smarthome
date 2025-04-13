@@ -21,7 +21,7 @@ main:
           ca_file: "/home/ssl/certs/postgresql/ca.crt"
   secret:
     n8n:
-      encryption_key: "<your-secure-encryption-key>"
+      encryption_key: "somekey"
 
   extraEnv:
     DB_POSTGRESDB_PASSWORD:
