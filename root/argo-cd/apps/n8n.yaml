@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/8gears/n8n-helm-chart.git
     targetRevision: main
-    chart: charts/n8n
+    path: charts/n8n
     helm:
       valueFiles:
         - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/n8n-values.yaml
