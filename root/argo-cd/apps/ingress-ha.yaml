@@ -30,7 +30,9 @@ metadata:
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   rules:
     - host: ha.yonor.me
       http:
@@ -42,3 +44,7 @@ spec:
                 name: ha-service
                 port:
                   number: 80
+  tls:
+  - hosts:
+    - ha.yonor.me
+    secretName: ha-service-tls # Updated secret name for clarity
