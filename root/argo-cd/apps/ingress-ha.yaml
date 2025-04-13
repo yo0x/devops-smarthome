@@ -1,4 +1,4 @@
-# svc-c-domain.yaml
+# svc-ha-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,7 +7,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8123
       protocol: TCP
   clusterIP: None  # Headless service to allow custom endpoints
 ---
@@ -22,11 +22,11 @@ subsets:
     ports:
       - port: 8123
 ---
-# ingress-c-domain.yaml
+# ingress-ha-service.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: c-domain-ingress
+  name: ha-service-ingress
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
@@ -41,4 +41,4 @@ spec:
               service:
                 name: ha-service
                 port:
-                  number: 8123
+                  number: 80
