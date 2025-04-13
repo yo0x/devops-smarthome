@@ -11,7 +11,7 @@ spec:
     targetRevision: main
     helm:
       valueFiles:
-        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/fe-values.yaml
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/litellm-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: litellm
