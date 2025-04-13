@@ -138,7 +138,7 @@ db:
   # How to connect to the existing postgres server/cluster
   endpoint: 192.168.1.126
   database: dblitellm
-  url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)
+  url: postgresql://postgres:yonor@192.168.1.126:5432/dblitellm
   secret:
     name: postgres
     usernameKey: cG9zdGdyZXMK
@@ -192,5 +192,6 @@ migrationJob:
 # Additional environment variables to be added to the deployment
 envVars: {
     # USE_DDTRACE: "true"
+    DATABASE_URL: postgresql://postgres:yonor@192.168.1.126:5432/dblitellm
 }
 
