@@ -9,16 +9,51 @@ spec:
     - port: 80
       targetPort: 8123
       protocol: TCP
+  clusterIP: None  # Headless service to allow custom endpoints
   selector: {}  # Remove headless service spec.  Use selector instead
 ---
+apiVersion: v1
+kind: Endpoints
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: ha-service
   name: ha-service-deployment
   namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.239
+    ports:
+      - port: 8123
+---
+# ingress-ha-service.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ha-service-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   labels:
     app: ha-service
 spec:
+  ingressClassName: nginx
+  rules:
+    - host: ha.yonor.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ha-service
+                port:
+                  number: 80
+  tls:
+  - hosts:
+    - ha.yonor.me
+    secretName: ha-service-tls # Updated secret name for clarity
   replicas: 1
   selector:
     matchLabels:
