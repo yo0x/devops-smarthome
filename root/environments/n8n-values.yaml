@@ -1,9 +1,9 @@
 #Prod like set up with nginx-ingress.  Using local postgres instance instead of CNPG.
 image:
-  repository: 8gears.container-registry.com/ops/n8n
-  tag: 1.81.4
-imagePullSecrets:
-  - name: 8gears-registry-n8n
+  repository: public.ecr.aws/r4n5h0a2/nura/n8n
+  tag: latest
+# imagePullSecrets:
+#   - name: 8gears-registry-n8n
 
 main:
   config:
