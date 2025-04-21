@@ -44,15 +44,22 @@ service:
 
 ingress:
   enabled: true
-  className: "nginx"
+  ingressClassName: "nginx"
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: basic-auth
     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - My App"
-  host: "vs.yonor.com"
-  tls: true
-  existingSecret: "nginx-tls"
+  hosts: 
+    - host: "vs.yonor.com"
+      paths:
+        - /
+  tls:
+    - secretName: "nginx-tls"
+      hosts:
+        - vs.yonor.me
+
+
 # ingress:
 #   enabled: false
 #   #annotations:
