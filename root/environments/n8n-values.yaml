@@ -2,8 +2,8 @@ image:
   repository: n8nio/n8n
   tag: latest
   pullPolicy: Always
-imagePullSecrets:
-  - name: 8gears-registry-n8n
+# imagePullSecrets:
+#   - name: 8gears-registry-n8n
 
 main:
   config:
