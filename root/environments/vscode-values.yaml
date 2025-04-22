@@ -61,19 +61,19 @@ service:
 #         - vs.yonor.me
 
 
-# ingress:
-#   enabled: false
-#   #annotations:
-#   #  kubernetes.io/tls-acme: "true"
-#   #hosts:
-#   #  - host: code-server.example.loc
-#   #    paths:
-#   #      - /
-#   ingressClassName: ""
-  #tls:
-  #  - secretName: code-server
-  #    hosts:
-  #      - code-server.example.loc
+ingress:
+  enabled: false
+  #annotations:
+  #  kubernetes.io/tls-acme: "true"
+  #hosts:
+  #  - host: code-server.example.loc
+  #    paths:
+  #      - /
+  ingressClassName: ""
+  tls:
+   - secretName: code-server
+     hosts:
+       - code-server.example.loc
 
 # Optional additional arguments
 extraArgs: []
