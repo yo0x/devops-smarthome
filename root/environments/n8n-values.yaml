@@ -1,6 +1,6 @@
 image:
-  repository: 8gears.container-registry.com/ops/n8n
-  tag: 1.81.4
+  repository: n8nio/n8n
+  tag: latest
   pullPolicy: Always
 imagePullSecrets:
   - name: 8gears-registry-n8n
