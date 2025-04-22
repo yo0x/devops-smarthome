@@ -1,41 +1,50 @@
-#Prod like set up with CloudNativePG and nginx-ingress
 image:
   repository: 8gears.container-registry.com/ops/n8n
   tag: 1.81.4
+  pullPolicy: Always
 imagePullSecrets:
   - name: 8gears-registry-n8n
 
 main:
   config:
+    n8n:
+      editor_base_url: https://n8n.yonor.me
+    executions_mode: queue
     db:
       type: postgresdb
       postgresdb:
         host: 192.168.1.126
         user: postgres
-#        password: password is read from cnpg db-app secretKeyRef
         pool:
           size: 10
         ssl:
           enabled: true
           reject_Unauthorized: true
           ca_file: "/home/ssl/certs/postgresql/ca.crt"
+    webhook_url: https://n8n.yonor.me
+    queue:
+      health:
+        check:
+          active: true
+      bull:
+        redis:
+          host: n8n-valkey-primary
+          port: 6379
   secret:
     n8n:
-      encryption_key: "yonor"
-
-  extraEnv:
+      encryption_key: "yonor"  # Replace with secure key in production
+  extraEnv: &extraEnv
     DB_POSTGRESDB_PASSWORD:
       valueFrom:
         secretKeyRef:
           name: db-app
           key: password
-  # Mount the CNPG CA Cert into N8N container
-  extraVolumeMounts:
+    N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+  extraVolumeMounts: &extraVolumeMounts
     - name: db-ca-cert
       mountPath: /home/ssl/certs/postgresql
       readOnly: true
-
-  extraVolumes:
+  extraVolumes: &extraVolumes
     - name: db-ca-cert
       secret:
         secretName: db-ca
@@ -47,6 +56,34 @@ main:
       memory: 2048Mi
     requests:
       memory: 512Mi
+
+worker:
+  enabled: true
+  extraEnv: *extraEnv
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes
+
+webhook:
+  enabled: true
+  extraEnv: *extraEnv
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes
+
+valkey:
+  enabled: true
+  architecture: standalone
+  sentinel:
+    enabled: false
+  auth:
+    enabled: false
+  primary:
+    kind: Deployment
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
 
 ingress:
   enabled: true
@@ -62,31 +99,6 @@ ingress:
       paths:
         - /
   tls:
-    - secretName: nginx-tls
+    - secretName: ngnix-tls
       hosts:
         - n8n.yonor.me
-
-
-
-# cnpg DB cluster request
-# extraManifests:
-#   - apiVersion: postgresql.cnpg.io/v1
-#     kind: Cluster
-#     metadata:
-#       name: db
-#     spec:
-#       instances: 1
-#       bootstrap:
-#         initdb:
-#           database: n8n
-#           owner: n8n
-#       postgresql:
-#         parameters:
-#           shared_buffers: "64MB"
-#       resources:
-#         requests:
-#           memory: "512Mi"
-#         limits:
-#           memory: "512Mi"
-#       storage:
-#         size: 1Gi
