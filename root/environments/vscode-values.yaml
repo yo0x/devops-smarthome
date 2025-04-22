@@ -39,25 +39,26 @@ podSecurityContext: {}
 priorityClassName: ""
 
 service:
-  type: ClusterIP
-  port: 8080
+  type: NodePort
+  port: 8080  # or any port you want
+  nodePort: 30080  # optional: choose a valid port in the 30000–32767 range
 
-ingress:
-  enabled: true
-  ingressClassName: "nginx"
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - My App"
-  hosts: 
-    - host: "vs.yonor.com"
-      paths:
-        - /
-  tls:
-    - secretName: "nginx-tls"
-      hosts:
-        - vs.yonor.me
+# ingress:
+#   enabled: true
+#   ingressClassName: "nginx"
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     nginx.ingress.kubernetes.io/auth-type: basic
+#     nginx.ingress.kubernetes.io/auth-secret: basic-auth
+#     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - My App"
+#   hosts: 
+#     - host: "vs.yonor.com"
+#       paths:
+#         - /
+#   tls:
+#     secretName: "nginx-tls"
+#     - hosts:
+#         - vs.yonor.me
 
 
 # ingress:
