@@ -37,7 +37,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/open-webui/open-webui
   tag: "latest"
-  pullPolicy: "always"
+  pullPolicy: "Always"
 
 # -- Configure imagePullSecrets to use private registry
 # ref: <https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry>

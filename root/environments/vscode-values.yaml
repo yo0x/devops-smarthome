@@ -41,7 +41,7 @@ priorityClassName: ""
 service:
   type: NodePort
   port: 8080  # or any port you want
-  nodePort: 30080  # optional: choose a valid port in the 30000–32767 range
+  nodePort: 31198  # optional: choose a valid port in the 30000–32767 range
 
 # ingress:
 #   enabled: true
