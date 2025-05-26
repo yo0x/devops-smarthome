@@ -13,7 +13,7 @@ spec:
     chart: n8n
     # 'targetRevision' is the specific version of the Helm chart to deploy.
     # Updated based on the successful helm install command.
-    targetRevision: main
+    targetRevision: 1.85.1
     path: charts/n8n # Path to the chart within the repository
     helm:
       # valueFiles remains the same, pointing to your custom values.
