@@ -8,14 +8,13 @@ spec:
 
   source:
     # repoURL should point to the full OCI path of the chart.
-    repoURL: oci://8gears.container-registry.com/library/n8n
+    repoURL: https://github.com/8gears/n8n-helm-chart.git
     # 'chart' specifies the name of the Helm chart.
     chart: n8n
     # 'targetRevision' is the specific version of the Helm chart to deploy.
     # Updated based on the successful helm install command.
     targetRevision: 0.1.1
-    # 'path' is generally not used for OCI Helm chart sources and should be removed or left empty.
-
+    path: charts/n8n # Path to the chart within the repository
     helm:
       # valueFiles remains the same, pointing to your custom values.
       valueFiles:
