@@ -2,20 +2,40 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: n8n
-  namespace: argocd
+  namespace: argocd # Or your preferred ArgoCD application namespace
 spec:
-  project: default
+  project: default # Or your specific ArgoCD project
+
   source:
-    repoURL: https://github.com/8gears/n8n-helm-chart.git
-    targetRevision: main
-    path: charts/n8n
+    # repoURL should point to the OCI registry and the library/namespace containing the chart.
+    # The chart name itself will be specified in the 'chart' field.
+    repoURL: oci://8gears.container-registry.com/library
+    # 'chart' specifies the name of the Helm chart in the OCI registry.
+    chart: n8n
+    # 'targetRevision' should be the specific version of the Helm chart you want to deploy.
+    # The documentation example used 0.20.0. You should use the version you intend to deploy.
+    # Replace "0.20.0" with the desired chart version.
+    targetRevision: 0.20.0
+    # 'path' is generally not used for OCI Helm chart sources and should be removed or left empty.
+
     helm:
+      # valueFiles remains the same, pointing to your custom values.
       valueFiles:
         - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/n8n-values.yaml
+      # You can also include inline values here if needed:
+      # values: |
+      #   key: value
+      #   anotherKey:
+      #     nested: value
+
   destination:
-    server: https://kubernetes.default.svc
-    namespace: n8n
+    server: https://kubernetes.default.svc # Target Kubernetes cluster
+    namespace: n8n # Target namespace for n8n deployment
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    # Optional: Add syncOptions if needed
+    # syncOptions:
+    #   - CreateNamespace=true # Example: Ensures the namespace exists
