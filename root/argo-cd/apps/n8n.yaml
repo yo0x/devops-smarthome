@@ -7,15 +7,13 @@ spec:
   project: default # Or your specific ArgoCD project
 
   source:
-    # repoURL should point to the OCI registry and the library/namespace containing the chart.
-    # The chart name itself will be specified in the 'chart' field.
-    repoURL: oci://8gears.container-registry.com/library
-    # 'chart' specifies the name of the Helm chart in the OCI registry.
+    # repoURL should point to the full OCI path of the chart.
+    repoURL: oci://8gears.container-registry.com/library/n8n
+    # 'chart' specifies the name of the Helm chart.
     chart: n8n
-    # 'targetRevision' should be the specific version of the Helm chart you want to deploy.
-    # The documentation example used 0.20.0. You should use the version you intend to deploy.
-    # Replace "0.20.0" with the desired chart version.
-    targetRevision: 0.20.0
+    # 'targetRevision' is the specific version of the Helm chart to deploy.
+    # Updated based on the successful helm install command.
+    targetRevision: 0.1.1
     # 'path' is generally not used for OCI Helm chart sources and should be removed or left empty.
 
     helm:
