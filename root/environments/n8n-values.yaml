@@ -159,7 +159,7 @@ redis:
 
 # Ingress configuration
 ingress:
-  enabled: true
+  enabled: false
   className: nginx
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -169,17 +169,18 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
     - host: n8n.yonor.me
-      paths: # <--- This is the crucial parent key
-        - path: / # <--- Each path is an object with a 'path' key
+      paths: # <--- This must be a list of simple strings
+        - "/" # <--- Change this line: just the path string, no 'path:' key
   tls:
     - secretName: ngnix-tls
       hosts:
         - n8n.yonor.me
 # Service Configuration (defaults are usually fine)
-# service:
-#   type: ClusterIP
-#   port: 80
-#   annotations: {}
+service:
+  type: NodePort
+  nodePort: 30080
+  port: 80
+  annotations: {}
 
 # Other common Kubernetes settings (defaults shown in chart documentation)
 # imagePullSecrets: []
