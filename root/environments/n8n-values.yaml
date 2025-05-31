@@ -160,22 +160,19 @@ redis:
 # Ingress configuration
 ingress:
   enabled: true
-  className: nginx # As per your config
+  className: nginx
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # Add any other necessary annotations
   hosts:
-      - host: n8n.yonor.me
-        http: # <--- This is the crucial part that might be missing or misaligned
-          paths:
-            - path: /
-              pathType: Prefix
+    - host: n8n.yonor.me
+      paths: # <--- This is the crucial parent key
+        - path: / # <--- Each path is an object with a 'path' key
   tls:
-    - secretName: ngnix-tls # Ensure this secret exists or is managed by cert-manager
+    - secretName: ngnix-tls
       hosts:
         - n8n.yonor.me
 # Service Configuration (defaults are usually fine)
