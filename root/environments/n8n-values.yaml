@@ -169,9 +169,9 @@ ingress:
     # Add any other necessary annotations
   hosts:
     - host: n8n.yonor.me
-      paths:
-        - path: /
-          pathType: Prefix # Or ImplementationSpecific, depending on Ingress controller
+      # paths:
+      #   - path: /
+      #     pathType: Prefix # Or ImplementationSpecific, depending on Ingress controller
   tls:
     - secretName: ngnix-tls # Ensure this secret exists or is managed by cert-manager
       hosts:
