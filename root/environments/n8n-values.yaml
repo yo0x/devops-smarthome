@@ -160,21 +160,16 @@ redis:
 # Ingress configuration
 ingress:
   enabled: false
-  className: nginx
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  annotations: {}
+  # define a custom ingress class Name, like "traefik" or "nginx"
+  className: ""
   hosts:
-    - host: n8n.yonor.me
-      paths: # <--- This must be a list of simple strings
-        - "/" # <--- Change this line: just the path string, no 'path:' key
+    - host: workflow.example.com
+      paths: []
   tls:
-    - secretName: ngnix-tls
-      hosts:
-        - n8n.yonor.me
+    - hosts:
+        - workflow.example.com
+      secretName: host-domain-cert
 # Service Configuration (defaults are usually fine)
 service:
   type: NodePort
