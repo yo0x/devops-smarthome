@@ -169,10 +169,11 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # Add any other necessary annotations
   hosts:
-    - host: n8n.yonor.me
-      paths:
-        - path: /  # <--- THIS WAS MISSING/COMMENTED OUT
-          pathType: Prefix # Or ImplementationSpecific, depending on Ingress controller
+      - host: n8n.yonor.me
+        http: # <--- This is the crucial part that might be missing or misaligned
+          paths:
+            - path: /
+              pathType: Prefix
   tls:
     - secretName: ngnix-tls # Ensure this secret exists or is managed by cert-manager
       hosts:
