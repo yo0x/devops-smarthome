@@ -155,6 +155,7 @@ redis:
   auth:
     enabled: false # As per your 'valkey.auth.enabled'
     # password: "your-redis-password" # Set if auth.enabled is true
+# password: "your-redis-password" # Set if auth.enabled is true
 
 # Ingress configuration
 ingress:
@@ -169,14 +170,13 @@ ingress:
     # Add any other necessary annotations
   hosts:
     - host: n8n.yonor.me
-      # paths:
-      #   - path: /
-      #     pathType: Prefix # Or ImplementationSpecific, depending on Ingress controller
+      paths:
+        - path: /  # <--- THIS WAS MISSING/COMMENTED OUT
+          pathType: Prefix # Or ImplementationSpecific, depending on Ingress controller
   tls:
     - secretName: ngnix-tls # Ensure this secret exists or is managed by cert-manager
       hosts:
         - n8n.yonor.me
-
 # Service Configuration (defaults are usually fine)
 # service:
 #   type: ClusterIP
