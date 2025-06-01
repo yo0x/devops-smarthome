@@ -10,7 +10,7 @@ image:
 config:
   # n8n Editor URL
   N8N_EDITOR_BASE_URL: "https://n8n.yonor.me"
-
+  N8N_SECURE_COOKIE: "false"
   # n8n Webhook URL (if different from editor URL or needs to be explicit)
   N8N_WEBHOOK_URL: "https://n8n.yonor.me"
 
@@ -73,7 +73,6 @@ extraEnv:
         name: db-app # Kubernetes secret containing the DB password
         key: password # Key within the secret 'db-app'
   N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
-  N8N_SECURE_COOKIE: "false" # Set to "true" if using HTTPS exclusively and your proxy handles termination correctly.
   # Environment variable for PostgreSQL SSL CA certificate file path
   DB_POSTGRESDB_SSL_CA_FILE: "/home/ssl/certs/postgresql/ca.crt"
 
