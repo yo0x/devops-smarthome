@@ -158,23 +158,46 @@ redis:
 
 # Ingress configuration
 ingress:
-  enabled: false
-  annotations: {}
-  # define a custom ingress class Name, like "traefik" or "nginx"
-  className: ""
+  enabled: true
+  className: "nginx" # Matches your working Ingress and is common for Nginx Ingress Controller
+  annotations:
+    # Essential for SSL with cert-manager and Let's Encrypt
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # Tells Nginx that the backend service (n8n) expects HTTP
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # Rewrites the path to "/" before sending to the n8n service.
+    # Useful if n8n expects all requests at its root, regardless of Ingress path.
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    # Add any other Nginx specific annotations you might need, for example:
+    # nginx.ingress.kubernetes.io/proxy-body-size: "50m" # If n8n handles large uploads
   hosts:
-    - host: workflow.example.com
-      paths: []
+    - host: "n8n.yonor.me"
+      paths:
+        - "/" # This will create the main rule for n8n.
+              # If webhook.enabled is true (see below), the template will also use this
+              # as a base to generate paths like /webhook/, /form/, etc.
   tls:
     - hosts:
-        - workflow.example.com
-      secretName: host-domain-cert
-# Service Configuration (defaults are usually fine)
-service:
-  type: NodePort
-  nodePort: 30080
-  port: 80
-  annotations: {}
+        - "n8n.yonor.me"
+      # This secret will store the TLS certificate for n8n.yonor.me.
+      # Ensure cert-manager has permissions to create/update it.
+      secretName: "n8n-yonor-me-tls"
+
+# Note on related values (these typically reside outside the 'ingress:' block but are used by the Ingress template):
+# The Ingress template refers to service ports like $.Values.main.service.port and $.Values.webhook.service.port
+# You might have sections like this in your values.yaml:
+#
+# main:
+#   service:
+#     port: 5678 # Or whatever port your main n8n service listens on internally. Template defaults to 80.
+#
+# webhook:
+#   enabled: true # Set to true if you use n8n's webhook functionality.
+#                 # This will enable the additional path rules in the Ingress template.
+#                 # Set to false if you only need the main path ("/") for n8n.
+#   service:
+#     port: 5678 # Or whatever port your n8n webhook process listens on. Template defaults to 80.
+#                # Often this is the same port as the main service if n8n handles all routes internally.
 
 # Other common Kubernetes settings (defaults shown in chart documentation)
 # imagePullSecrets: []
