@@ -9,10 +9,10 @@ image:
 # n8n specific configurations that are non-sensitive
 config:
   # n8n Editor URL
-  N8N_EDITOR_BASE_URL: "https://n8n.yonor.me"
+  N8N_EDITOR_BASE_URL: "https://kam.yonor.me"
   N8N_SECURE_COOKIE: "false"
   # n8n Webhook URL (if different from editor URL or needs to be explicit)
-  N8N_WEBHOOK_URL: "https://n8n.yonor.me"
+  N8N_WEBHOOK_URL: "https://kam.yonor.me"
 
   # Executions mode
   # Note: The chart documentation lists 'main' or 'own' for 'executions.process'.
@@ -171,17 +171,17 @@ ingress:
     # Add any other Nginx specific annotations you might need, for example:
     # nginx.ingress.kubernetes.io/proxy-body-size: "50m" # If n8n handles large uploads
   hosts:
-    - host: "n8n.yonor.me"
+    - host: "kam.yonor.me"
       paths:
-        - "/kami" # This will create the main rule for n8n.
+        - "/" # This will create the main rule for n8n.
               # If webhook.enabled is true (see below), the template will also use this
               # as a base to generate paths like /webhook/, /form/, etc.
   tls:
     - hosts:
-        - "n8n.yonor.me"
-      # This secret will store the TLS certificate for n8n.yonor.me.
+        - "kam.yonor.me"
+      # This secret will store the TLS certificate for kam.yonor.me.
       # Ensure cert-manager has permissions to create/update it.
-      secretName: "n8n-yonor-me-tls"
+      secretName: "kam-yonor-me-tls"
 
 # Note on related values (these typically reside outside the 'ingress:' block but are used by the Ingress template):
 # The Ingress template refers to service ports like $.Values.main.service.port and $.Values.webhook.service.port
