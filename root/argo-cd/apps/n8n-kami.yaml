@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-kami
+  namespace: argocd # Or your preferred ArgoCD application namespace
+spec:
+  project: default # Or your specific ArgoCD project
+
+  source:
+    # repoURL should point to the full OCI path of the chart.
+    repoURL: https://github.com/8gears/n8n-helm-chart.git
+    # 'chart' specifies the name of the Helm chart.
+    # chart: n8n
+    # 'targetRevision' is the specific version of the Helm chart to deploy.
+    # Updated based on the successful helm install command.
+    targetRevision: main
+    path: charts/n8n # Path to the chart within the repository
+    helm:
+      # valueFiles remains the same, pointing to your custom values.
+      valueFiles:
+        - https://raw.githubusercontent.com/yo0x/devops-smarthome/main/root/environments/n8n-values-kami.yaml
+      # You can also include inline values here if needed:
+      # values: |
+      #   key: value
+      #   anotherKey:
+      #     nested: value
+
+  destination:
+    server: https://kubernetes.default.svc # Target Kubernetes cluster
+    namespace: n8n # Target namespace for n8n deployment
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    # Optional: Add syncOptions if needed
+    # syncOptions:
+    #   - CreateNamespace=true # Example: Ensures the namespace exists

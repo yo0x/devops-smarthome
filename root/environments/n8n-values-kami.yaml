@@ -1,0 +1,224 @@
+# values.yaml for n8n Helm Chart
+
+# Image configuration
+image:
+  repository: n8nio/n8n
+  tag: latest # As per your desired config; chart appVersion is the default if empty
+  pullPolicy: Always # As per your desired config
+
+# n8n specific configurations that are non-sensitive
+config:
+  # n8n Editor URL
+  N8N_EDITOR_BASE_URL: "https://n8n.yonor.me"
+  N8N_SECURE_COOKIE: "false"
+  # n8n Webhook URL (if different from editor URL or needs to be explicit)
+  N8N_WEBHOOK_URL: "https://n8n.yonor.me"
+
+  # Executions mode
+  # Note: The chart documentation lists 'main' or 'own' for 'executions.process'.
+  # 'queue' mode is enabled by setting EXECUTIONS_MODE and configuring Redis.
+  EXECUTIONS_MODE: "queue" # For queue mode
+
+  # Database Configuration (PostgreSQL)
+  database:
+    type: postgresdb
+    postgresdb:
+      host: "192.168.1.126"
+      user: "postgres"
+      # database: "n8n" # Default is n8n, uncomment to override
+      # port: 5432       # Default is 5432, uncomment to override
+      # schema: "public" # Default is public, uncomment to override
+      ssl:
+        # rejectUnauthorized is 'true' in your config.
+        # The chart default is also true.
+        rejectUnauthorized: true
+        # ca, cert, key fields expect certificate content.
+        # For using a CA file, we'll use extraEnv DB_POSTGRESDB_SSL_CA_FILE
+        # and mount the CA certificate via extraVolumes/extraVolumeMounts.
+        # ca: ""
+        # cert: ""
+        # key: ""
+
+  # PostgreSQL Pool Size (using direct n8n environment variable)
+  DB_POSTGRESDB_POOL_MAX: 10
+
+  # Queue Mode Health Check (using direct n8n environment variable)
+  N8N_QUEUE_HEALTH_CHECK_ACTIVE: "true" # n8n often expects string for boolean env vars
+
+  # Queue Mode Bull Redis Configuration (using direct n8n environment variables)
+  # These will point to the Valkey/Redis service.
+  # If using the embedded redis, the chart might auto-configure this.
+  # However, explicitly setting helps if using an external or specifically named internal service.
+  N8N_QUEUE_BULL_REDIS_HOST: "n8n-valkey-primary" # Service name of your Valkey/Redis
+  N8N_QUEUE_BULL_REDIS_PORT: 6379
+
+# n8n specific configurations that are sensitive and will be stored in a Kubernetes Secret
+secret:
+  # n8n Encryption Key
+  N8N_ENCRYPTION_KEY: "yonor" # !! IMPORTANT: Replace "yonor" with a strong, unique key in production !!
+
+  # database:
+    # postgresdb:
+      # password: "your_postgres_password_here"
+      # If DB_POSTGRESDB_PASSWORD is set via extraEnv from a secretKeyRef (as in your example),
+      # then this field might not be needed, assuming n8n prioritizes the env var.
+      # If the chart requires this to be set to create its own DB secret or pass to n8n,
+      # you might need to ensure its value aligns or use a mechanism to populate it.
+
+# Additional environment variables for the n8n deployment(s)
+extraEnv:
+  DB_POSTGRESDB_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: db-app # Kubernetes secret containing the DB password
+        key: password # Key within the secret 'db-app'
+  N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+  # Environment variable for PostgreSQL SSL CA certificate file path
+  DB_POSTGRESDB_SSL_CA_FILE: "/home/ssl/certs/postgresql/ca.crt"
+
+# The n8n Helm chart documentation provided does not explicitly list `extraVolumeMounts` or `extraVolumes`
+# at the root level. However, many Helm charts support this for custom volume configurations.
+# If the chart does not support these keys globally, these settings might not apply as expected
+# or might need to be configured differently (e.g., via a custom pod template if supported).
+# These are based on your 'main.extraVolumeMounts' and 'main.extraVolumes'.
+# If scaling is enabled, it's assumed workers/webhooks might inherit or need similar mounts.
+extraVolumeMounts:
+  - name: db-ca-cert
+    mountPath: /home/ssl/certs/postgresql # Mount directory for the CA cert
+    readOnly: true
+
+extraVolumes:
+  - name: db-ca-cert
+    secret:
+      secretName: db-ca # Kubernetes secret containing the ca.crt
+      items:
+        - key: ca.crt
+          path: ca.crt # File name within the mount path
+
+# Resource requests and limits for the main n8n deployment
+resources:
+  limits:
+    memory: 2048Mi
+  requests:
+    memory: 512Mi
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Persistence configuration (example, adjust as needed)
+# persistence:
+#   enabled: true
+#   size: 1Gi
+#   # storageClass: "-" # Or your specific storage class
+#   accessModes:
+#     - ReadWriteOnce
+
+# Scaling configuration for workers and webhooks (Queue Mode)
+scaling:
+  enabled: true # This enables queue mode and worker instances
+  worker:
+    count: 2 # Default is 2 when scaling.enabled is true. Adjust if needed.
+    # concurrency: 2 # Default concurrency per worker
+  webhook:
+    enabled: true # Enables dedicated webhook processor instances
+    count: 1 # Default is 1. Adjust if needed.
+  # Configuration for an external Redis if not using the embedded one.
+  # If redis.enabled below is true, these are typically ignored or auto-configured.
+  # redis:
+  #   host: "n8n-valkey-primary" # Matches your N8N_QUEUE_BULL_REDIS_HOST
+  #   port: 6379                # Matches your N8N_QUEUE_BULL_REDIS_PORT
+  #   password: "your-redis-password-if-set"
+
+# Embedded Redis (Valkey) configuration
+# Based on your 'valkey' section, mapping to the chart's 'redis' section
+# (assuming it uses a Bitnami-like Redis subchart).
+redis:
+  enabled: true # Deploy the embedded Redis (Valkey)
+  architecture: standalone # As per your 'valkey.architecture'
+  # For Bitnami Redis chart: 'master' for standalone, or primary settings.
+  master: # Corresponds to your 'primary' block for Valkey
+    # kind: Deployment # This is often controller by the sub-chart, usually StatefulSet for persistence
+    persistence:
+      enabled: false # As per your 'valkey.primary.persistence.enabled'
+    resources: # As per your 'valkey.primary.resources'
+      requests:
+        memory: 256Mi
+        cpu: 100m
+  # replica: # Configuration for Redis replicas if architecture is replication
+  #   replicaCount: ...
+  sentinel:
+    enabled: false # As per your 'valkey.sentinel.enabled'
+  auth:
+    enabled: false # As per your 'valkey.auth.enabled'
+    # password: "your-redis-password" # Set if auth.enabled is true
+# password: "your-redis-password" # Set if auth.enabled is true
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx" # Matches your working Ingress and is common for Nginx Ingress Controller
+  annotations:
+    # Essential for SSL with cert-manager and Let's Encrypt
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # Tells Nginx that the backend service (n8n) expects HTTP
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # Rewrites the path to "/" before sending to the n8n service.
+    # Useful if n8n expects all requests at its root, regardless of Ingress path.
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    # Add any other Nginx specific annotations you might need, for example:
+    # nginx.ingress.kubernetes.io/proxy-body-size: "50m" # If n8n handles large uploads
+  hosts:
+    - host: "n8n.yonor.me"
+      paths:
+        - "/kami" # This will create the main rule for n8n.
+              # If webhook.enabled is true (see below), the template will also use this
+              # as a base to generate paths like /webhook/, /form/, etc.
+  tls:
+    - hosts:
+        - "n8n.yonor.me"
+      # This secret will store the TLS certificate for n8n.yonor.me.
+      # Ensure cert-manager has permissions to create/update it.
+      secretName: "n8n-yonor-me-tls"
+
+# Note on related values (these typically reside outside the 'ingress:' block but are used by the Ingress template):
+# The Ingress template refers to service ports like $.Values.main.service.port and $.Values.webhook.service.port
+# You might have sections like this in your values.yaml:
+#
+# main:
+#   service:
+#     port: 5678 # Or whatever port your main n8n service listens on internally. Template defaults to 80.
+#
+# webhook:
+#   enabled: true # Set to true if you use n8n's webhook functionality.
+#                 # This will enable the additional path rules in the Ingress template.
+#                 # Set to false if you only need the main path ("/") for n8n.
+#   service:
+#     port: 5678 # Or whatever port your n8n webhook process listens on. Template defaults to 80.
+#                # Often this is the same port as the main service if n8n handles all routes internally.
+
+# Other common Kubernetes settings (defaults shown in chart documentation)
+# imagePullSecrets: []
+# nameOverride: ""
+# fullnameOverride: ""
+# serviceAccount:
+#   create: true
+#   annotations: {}
+#   name: ""
+# podAnnotations: {}
+# podSecurityContext: {}
+# securityContext: {}
+# autoscaling:
+#   enabled: false
+#   minReplicas: 1
+#   maxReplicas: 100
+#   targetCPUUtilizationPercentage: 80
+# nodeSelector: {}
+# tolerations: []
+# affinity: {}
+
+# In your n8n-values.yaml
+# ... other values ...
+
