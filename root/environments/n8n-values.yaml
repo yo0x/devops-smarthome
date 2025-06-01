@@ -196,3 +196,25 @@ service:
 # nodeSelector: {}
 # tolerations: []
 # affinity: {}
+
+# In your n8n-values.yaml
+# ... other values ...
+
+main:
+  service:
+    type: NodePort
+    port: 80  # This is the service's internal port
+    # For the actual nodePort number (30080), the template snippet you provided
+    # doesn't show how it's being included. A typical Helm chart would include
+    # it like this within the ports section if type is NodePort:
+    #
+    # ports:
+    #  - port: {{ default 80 .Values.main.service.port }}
+    #    targetPort: http
+    #    # ...
+    #    {{- if eq .Values.main.service.type "NodePort" }}
+    #    nodePort: {{ .Values.main.service.nodePort }} # <--- Expecting this
+    #    {{- end }}
+    #
+    # If your template supports it, you would add:
+    nodePort: 30080 # Your desired NodePort
